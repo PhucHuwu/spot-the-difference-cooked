@@ -395,7 +395,7 @@ public class GameView {
             opponentScore = "0";
         }
         
-        String scoreText = String.format("%s/%d", myScore, found.size() + 3);
+        String scoreText = String.format("%s | %s", myScore, opponentScore);
         scoreLabel.setText(scoreText);
     }
 
