@@ -36,15 +36,24 @@ public class ImageSetRepository {
     private byte[] readContent(String relative) throws Exception {
         if (relative == null) return null;
         String base = ServerProperties.load().getProperty("content.dir", "admin/content/imagesets");
-        // Resolve from user.dir (project root)
+        
+        // Try multiple paths
         Path p = Paths.get(System.getProperty("user.dir"), base, relative);
-        System.out.println("Loading image: " + p.toAbsolutePath() + " (exists: " + Files.exists(p) + ")");
+        System.out.println("Trying path 1: " + p.toAbsolutePath() + " (exists: " + Files.exists(p) + ")");
+        
         if (!Files.exists(p)) {
-            System.err.println("Image file not found: "+p.toAbsolutePath());
+            // Try parent directory (project root)
+            p = Paths.get(System.getProperty("user.dir"), "..", base, relative);
+            System.out.println("Trying path 2: " + p.toAbsolutePath() + " (exists: " + Files.exists(p) + ")");
+        }
+        
+        if (!Files.exists(p)) {
+            System.err.println("Image file not found: "+relative);
             return null;
         }
+        
         byte[] bytes = Files.readAllBytes(p);
-        System.out.println("Loaded " + bytes.length + " bytes from " + relative);
+        System.out.println("✓ Loaded " + bytes.length + " bytes from " + p.toAbsolutePath());
         return bytes;
     }
 
