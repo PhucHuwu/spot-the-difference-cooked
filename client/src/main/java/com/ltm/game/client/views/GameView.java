@@ -63,15 +63,16 @@ public class GameView {
             Image bgImage = new Image(getClass().getResourceAsStream("/images/v2/forest-8227410.jpg"));
             bgImageView.setImage(bgImage);
             bgImageView.setPreserveRatio(false);
-            bgImageView.setFitWidth(1280);
-            bgImageView.setFitHeight(720);
+            bgImageView.fitWidthProperty().bind(root.widthProperty());
+            bgImageView.fitHeightProperty().bind(root.heightProperty());
         } catch (Exception e) {
             System.err.println("Could not load background image: " + e.getMessage());
         }
         
         Pane overlay = new Pane();
         overlay.setStyle("-fx-background-color: rgba(20,20,40,0.65);");
-        overlay.setPrefSize(1280, 720);
+        overlay.prefWidthProperty().bind(root.widthProperty());
+        overlay.prefHeightProperty().bind(root.heightProperty());
         
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-background-color: transparent;");
