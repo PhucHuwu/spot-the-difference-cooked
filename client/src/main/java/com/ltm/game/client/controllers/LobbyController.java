@@ -16,6 +16,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
 import javafx.util.Callback;
 
 import java.util.List;
@@ -298,96 +301,123 @@ public class LobbyController {
         
         VBox dialogContent = new VBox(20);
         dialogContent.setAlignment(Pos.CENTER);
-        dialogContent.setPadding(new Insets(40, 50, 40, 50));
-        
-        try {
-            var bgStream = getClass().getResourceAsStream("/images/anh_moi_choi.jpg");
-            if (bgStream != null) {
-                String imageUrl = getClass().getResource("/images/anh_moi_choi.jpg").toExternalForm();
-                dialogContent.setStyle(
-                    "-fx-background-image: url('" + imageUrl + "');" +
-                    "-fx-background-size: cover;" +
-                    "-fx-background-position: center;" +
-                    "-fx-background-repeat: no-repeat;" +
-                    "-fx-background-radius: 15px;" +
-                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0.8, 0, 5);"
-                );
-            } else {
-                dialogContent.setStyle(
-                    "-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);" +
-                    "-fx-background-radius: 15px;" +
-                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0.8, 0, 5);"
-                );
-            }
-        } catch (Exception e) {
-            dialogContent.setStyle(
-                "-fx-background-color: linear-gradient(to bottom right, #667eea, #764ba2);" +
-                "-fx-background-radius: 15px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0.8, 0, 5);"
-            );
-        }
+        dialogContent.setPadding(new Insets(50, 60, 50, 60));
+        dialogContent.setStyle(
+            "-fx-background-color: transparent;"
+        );
         
         Label iconLabel = new Label("⚔️");
         iconLabel.setStyle(
-            "-fx-font-size: 48px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(255,255,255,0.5), 10, 0.5, 0, 0);"
+            "-fx-font-size: 56px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 10, 0.7, 0, 2);"
         );
         
         Label headerLabel = new Label("Lời mời thi đấu");
         headerLabel.setStyle(
-            "-fx-font-size: 24px;" +
+            "-fx-font-size: 28px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0.5, 0, 2);"
+            "-fx-text-fill: #2c3e50;" +
+            "-fx-effect: dropshadow(gaussian, rgba(255,255,255,0.8), 8, 0.7, 0, 1);"
         );
         
         Label messageLabel = new Label(fromUser + " mời bạn thi đấu!");
         messageLabel.setStyle(
-            "-fx-font-size: 18px;" +
-            "-fx-text-fill: white;" +
-            "-fx-font-style: italic;" +
-            "-fx-padding: 15px;" +
-            "-fx-background-color: rgba(255,255,255,0.2);" +
-            "-fx-background-radius: 10px;"
+            "-fx-font-size: 20px;" +
+            "-fx-text-fill: #34495e;" +
+            "-fx-font-weight: bold;" +
+            "-fx-padding: 18px 25px;" +
+            "-fx-background-color: rgba(255,255,255,0.9);" +
+            "-fx-background-radius: 15px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.6, 0, 3);"
         );
         
-        HBox buttonBox = new HBox(15);
+        Label countdownLabel = new Label("10");
+        countdownLabel.setStyle(
+            "-fx-font-size: 36px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: #e74c3c;" +
+            "-fx-padding: 15px 25px;" +
+            "-fx-background-color: rgba(255,255,255,0.95);" +
+            "-fx-background-radius: 50px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(231,76,60,0.6), 12, 0.8, 0, 4);"
+        );
+        
+        HBox buttonBox = new HBox(20);
         buttonBox.setAlignment(Pos.CENTER);
         
         Button acceptBtn = new Button("✓ Chấp nhận");
         acceptBtn.setStyle(
-            "-fx-font-size: 16px;" +
+            "-fx-font-size: 18px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: white;" +
-            "-fx-background-color: #27ae60;" +
-            "-fx-background-radius: 25px;" +
-            "-fx-padding: 12px 30px;" +
+            "-fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);" +
+            "-fx-background-radius: 30px;" +
+            "-fx-padding: 14px 35px;" +
             "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.5, 0, 2);"
+            "-fx-effect: dropshadow(gaussian, rgba(52,152,219,0.6), 10, 0.7, 0, 4);"
         );
+        
+        Button declineBtn = new Button("✗ Từ chối");
+        declineBtn.setStyle(
+            "-fx-font-size: 18px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: white;" +
+            "-fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);" +
+            "-fx-background-radius: 30px;" +
+            "-fx-padding: 14px 35px;" +
+            "-fx-cursor: hand;" +
+            "-fx-effect: dropshadow(gaussian, rgba(149,165,166,0.6), 10, 0.7, 0, 4);"
+        );
+        
+        final int[] countdown = {10};
+        
+        Runnable autoDecline = () -> {
+            networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", false)));
+            inviteDialog.close();
+        };
+        
+        Timeline[] countdownTimerRef = new Timeline[1];
+        countdownTimerRef[0] = new Timeline(
+            new KeyFrame(Duration.seconds(1), e -> {
+                countdown[0]--;
+                if (countdown[0] > 0) {
+                    countdownLabel.setText(String.valueOf(countdown[0]));
+                    if (countdown[0] <= 3) {
+                        countdownLabel.setStyle(
+                            "-fx-font-size: 42px;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-text-fill: #e74c3c;" +
+                            "-fx-padding: 15px 25px;" +
+                            "-fx-background-color: rgba(255,255,255,0.95);" +
+                            "-fx-background-radius: 50px;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(231,76,60,0.8), 15, 0.9, 0, 5);"
+                        );
+                    }
+                } else {
+                    countdownTimerRef[0].stop();
+                    autoDecline.run();
+                }
+            })
+        );
+        countdownTimerRef[0].setCycleCount(10);
+        
+        Timeline countdownTimer = countdownTimerRef[0];
+        
         acceptBtn.setOnAction(e -> {
+            countdownTimer.stop();
             networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", true)));
             inviteDialog.close();
         });
         
-        Button declineBtn = new Button("✗ Từ chối");
-        declineBtn.setStyle(
-            "-fx-font-size: 16px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: #e74c3c;" +
-            "-fx-background-radius: 25px;" +
-            "-fx-padding: 12px 30px;" +
-            "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.5, 0, 2);"
-        );
         declineBtn.setOnAction(e -> {
-            networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", false)));
-            inviteDialog.close();
+            countdownTimer.stop();
+            autoDecline.run();
         });
         
+        countdownTimer.play();
+        
         buttonBox.getChildren().addAll(acceptBtn, declineBtn);
-        dialogContent.getChildren().addAll(iconLabel, headerLabel, messageLabel, buttonBox);
+        dialogContent.getChildren().addAll(iconLabel, headerLabel, messageLabel, countdownLabel, buttonBox);
         
         Scene dialogScene = new Scene(dialogContent);
         dialogScene.setFill(Color.TRANSPARENT);
