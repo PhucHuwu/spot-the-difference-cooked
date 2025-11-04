@@ -1,8 +1,52 @@
+# Maven
 target/
-.idea/
-.vscode/
-*.iml
-*.log
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Java
 *.class
-*.DS_Store
-Dump*.sql
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+replay_pid*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application
+*.pid
+/tmp/
+*.log
+client.log
+
+# Database
+db_data/
+
+# Admin content (uploaded images)
+admin/content/
+admin/admin/content/

@@ -22,7 +22,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>com.example.server.GameServer</mainClass>
+                  <mainClass>com.ltm.game.server.GameServer</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -34,7 +34,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.2.0</version>
         <configuration>
-          <mainClass>com.example.server.GameServer</mainClass>
+          <mainClass>com.ltm.game.server.GameServer</mainClass>
         </configuration>
       </plugin>
     </plugins>

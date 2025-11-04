@@ -1,4 +1,4 @@
-package com.example.admin;
+package com.ltm.game.admin;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

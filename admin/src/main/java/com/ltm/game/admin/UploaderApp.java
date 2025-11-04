@@ -1,4 +1,4 @@
-package com.example.admin;
+package com.ltm.game.admin;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;

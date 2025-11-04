@@ -1,4 +1,4 @@
-package com.example.server;
+package com.ltm.game.server;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

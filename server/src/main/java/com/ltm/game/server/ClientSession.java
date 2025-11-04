@@ -1,4 +1,4 @@
-package com.example.server;
+package com.ltm.game.server;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
