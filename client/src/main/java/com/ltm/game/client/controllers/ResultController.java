@@ -113,15 +113,15 @@ public class ResultController {
         
         if (isDraw) {
             resultIcon.setText("🤝");
-            resultTitle.setText("HÒA!");
+            resultTitle.setText("Ván này hoà rồi!");
             resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #f39c12;");
         } else if (isWinner) {
             resultIcon.setText("🏆");
-            resultTitle.setText("CHIẾN THẮNG!");
-            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #2ecc71;");
+            resultTitle.setText("Bạn đỉnh quá!");
+            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #f39c12;");
         } else {
             resultIcon.setText("😢");
-            resultTitle.setText("THUA RỒI!");
+            resultTitle.setText("Bạn đã thua!");
             resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #e74c3c;");
         }
         

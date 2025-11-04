@@ -88,8 +88,8 @@ public class GameView {
         turnLabel.setStyle(
             "-fx-font-size: 18px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 4, 0.7, 0, 2);"
+            "-fx-text-fill: #f39c12;" +
+            "-fx-effect: dropshadow(gaussian, rgba(243,156,18,0.8), 6, 0.8, 0, 2);"
         );
         
         mainLayout.setCenter(centerContainer);
@@ -311,12 +311,12 @@ public class GameView {
         boolean isMyTurn = nextTurn.equals(myUsername);
         
         if (isMyTurn) {
-            turnLabel.setText("⚡ LƯỢT CỦA BẠN ⚡");
+            turnLabel.setText("Lượt của bạn");
             turnLabel.setStyle(
                 "-fx-font-size: 20px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #00ff88;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,255,136,0.8), 6, 0.8, 0, 0);"
+                "-fx-text-fill: #f39c12;" +
+                "-fx-effect: dropshadow(gaussian, rgba(243,156,18,0.8), 6, 0.8, 0, 2);"
             );
         } else {
             turnLabel.setText("⏳ Đợi đối thủ...");
