@@ -125,19 +125,7 @@ public class LeaderboardController {
                 "-fx-text-fill: white;" +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 2, 0.6, 0, 1);"
             );
-            nameLabel.setMinWidth(140);
-            
-            HBox starsBox = new HBox(3);
-            starsBox.setAlignment(Pos.CENTER_LEFT);
-            int fullStars = Math.min(5, totalPoints / 500);
-            for (int s = 0; s < 5; s++) {
-                Label star = new Label(s < fullStars ? "⭐" : "☆");
-                star.setStyle(
-                    "-fx-font-size: 16px;" +
-                    "-fx-text-fill: " + (s < fullStars ? "#FFD700" : "rgba(255,255,255,0.3)") + ";"
-                );
-                starsBox.getChildren().add(star);
-            }
+            nameLabel.setMinWidth(200);
             
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -184,7 +172,6 @@ public class LeaderboardController {
                 rankLabel, 
                 avatarLabel, 
                 nameLabel, 
-                starsBox, 
                 spacer, 
                 pointsBox,
                 winsBox
