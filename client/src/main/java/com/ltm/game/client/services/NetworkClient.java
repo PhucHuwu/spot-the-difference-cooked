@@ -50,15 +50,21 @@ public class NetworkClient {
                 try {
                     String line;
                     while ((line = reader.readLine()) != null) {
+                        System.out.println("[NetworkClient] Received: " + line);
                         Message msg = Message.fromJson(line);
+                        System.out.println("[NetworkClient] Parsed message type: " + msg.type);
                         Consumer<Message> handler = handlers.get(msg.type);
                         if (handler != null) {
+                            System.out.println("[NetworkClient] Using specific handler for: " + msg.type);
                             handler.accept(msg);
                         } else {
+                            System.out.println("[NetworkClient] Using default onMessage handler for: " + msg.type);
                             onMessage.accept(msg);
                         }
                     }
                 } catch (Exception e) {
+                    System.err.println("[NetworkClient] Reader thread error: " + e.getMessage());
+                    e.printStackTrace();
                     Platform.runLater(() -> System.err.println("Disconnected: " + e.getMessage()));
                 }
             }, "net-reader");
@@ -70,7 +76,18 @@ public class NetworkClient {
     }
 
     public void send(Message msg) {
-        out.println(msg.toJson());
+        if (out == null) {
+            System.err.println("[NetworkClient] ERROR: out is null! Cannot send message.");
+            return;
+        }
+        String json = msg.toJson();
+        System.out.println("[NetworkClient] Sending: " + json);
+        out.println(json);
+        if (out.checkError()) {
+            System.err.println("[NetworkClient] ERROR: Failed to send message!");
+        } else {
+            System.out.println("[NetworkClient] Message sent successfully");
+        }
     }
 
     public void addHandler(String type, Consumer<Message> handler) {
@@ -78,9 +95,15 @@ public class NetworkClient {
     }
 
     public void disconnect() {
+        try {
+            if (socket != null && !socket.isClosed()) {
+                socket.close();
+            }
+        } catch (Exception e) {
+            System.err.println("[NetworkClient] Error closing socket: " + e.getMessage());
+        }
         try { if (reader != null) reader.close(); } catch (Exception ignored) {}
         try { if (out != null) out.close(); } catch (Exception ignored) {}
-        try { if (socket != null) socket.close(); } catch (Exception ignored) {}
     }
 }
 

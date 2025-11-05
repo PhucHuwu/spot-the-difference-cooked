@@ -18,6 +18,9 @@ public final class Protocol {
     public static final String QUEUE_LEAVE = "queue/leave";
     public static final String QUEUE_STATUS = "queue/status";
     public static final String QUEUE_MATCHED = "queue/matched";
+    public static final String MATCH_ACCEPT = "match/accept";
+    public static final String MATCH_DECLINE = "match/decline";
+    public static final String MATCH_READY = "match/ready";
 
     public static final String GAME_START = "game/start";
     public static final String GAME_CLICK = "game/click";

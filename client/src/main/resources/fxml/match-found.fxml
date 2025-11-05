@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.ltm.game.client.controllers.MatchFoundController"
+           styleClass="match-found-root">
+
+    <!-- Animated Background Overlay -->
+    <Rectangle fx:id="backgroundOverlay" styleClass="background-overlay"
+               width="600" height="400" arcWidth="20" arcHeight="20"/>
+
+    <!-- Main Container -->
+    <VBox alignment="CENTER" spacing="25" styleClass="main-container">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <!-- Top Decoration -->
+        <HBox alignment="CENTER" spacing="10" styleClass="decoration-top">
+            <Label text="━━━━━━" styleClass="decoration-line"/>
+            <Label text="⬡" styleClass="decoration-hex"/>
+            <Label text="⬡" styleClass="decoration-hex"/>
+            <Label text="⬡" styleClass="decoration-hex"/>
+            <Label text="━━━━━━" styleClass="decoration-line"/>
+        </HBox>
+
+        <!-- Header -->
+        <VBox alignment="CENTER" spacing="8">
+            <Label text="MATCH FOUND" styleClass="match-found-title"/>
+            <Label text="Ready to compete?" styleClass="match-subtitle"/>
+        </VBox>
+
+        <!-- Animated Rings Container -->
+        <StackPane prefWidth="220" prefHeight="220" styleClass="rings-container">
+            <!-- Outer Ring (Spinning) -->
+            <Circle fx:id="outerRing" radius="110" styleClass="ring-outer"/>
+
+            <!-- Middle Ring (Counter Spinning) -->
+            <Circle fx:id="middleRing" radius="80" styleClass="ring-middle"/>
+
+            <!-- Inner Ring (Pulsing) -->
+            <Circle fx:id="innerRing" radius="50" styleClass="ring-inner"/>
+
+            <!-- Center Content -->
+            <VBox alignment="CENTER" spacing="5">
+                <!-- Countdown Timer -->
+                <Label fx:id="countdownLabel" text="10" styleClass="countdown-timer"/>
+                <Label text="SECONDS" styleClass="countdown-subtitle"/>
+            </VBox>
+        </StackPane>
+
+        <!-- Players Info -->
+        <HBox alignment="CENTER" spacing="40" styleClass="players-info-container">
+            <!-- Player 1 -->
+            <VBox alignment="CENTER" spacing="8" styleClass="player-info">
+                <Label fx:id="player1Label" text="YOU" styleClass="player-name player-you"/>
+                <Label text="●" styleClass="player-status player-status-pending"/>
+            </VBox>
+
+            <!-- VS Label -->
+            <Label text="VS" styleClass="vs-label"/>
+
+            <!-- Player 2 -->
+            <VBox alignment="CENTER" spacing="8" styleClass="player-info">
+                <Label fx:id="player2Label" text="OPPONENT" styleClass="player-name player-opponent"/>
+                <Label text="●" styleClass="player-status player-status-pending"/>
+            </VBox>
+        </HBox>
+
+        <!-- Action Buttons -->
+        <HBox alignment="CENTER" spacing="20" styleClass="buttons-container">
+            <Button fx:id="acceptButton" text="✓ ACCEPT" styleClass="accept-button"/>
+            <Button fx:id="declineButton" text="✗ DECLINE" styleClass="decline-button"/>
+        </HBox>
+
+        <!-- Warning Text -->
+        <Label fx:id="warningLabel" text="Declining may result in temporary queue restriction"
+               styleClass="warning-text" managed="false" visible="false"/>
+
+        <!-- Bottom Decoration -->
+        <HBox alignment="CENTER" spacing="10" styleClass="decoration-bottom">
+            <Label text="━━━━━━" styleClass="decoration-line"/>
+            <Label text="⬡" styleClass="decoration-hex"/>
+            <Label text="⬡" styleClass="decoration-hex"/>
+            <Label text="⬡" styleClass="decoration-hex"/>
+            <Label text="━━━━━━" styleClass="decoration-line"/>
+        </HBox>
+    </VBox>
+</StackPane>
+

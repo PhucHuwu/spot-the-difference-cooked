@@ -48,6 +48,7 @@ public class ClientHandler implements Runnable {
         } finally {
             if (session.username != null) {
                 lobby.onDisconnect(session);
+                queueService.handleDisconnect(session.username);
             }
             try { socket.close(); } catch (Exception ignored) {}
         }
@@ -62,6 +63,8 @@ public class ClientHandler implements Runnable {
             case Protocol.QUEUE_JOIN -> onQueueJoin();
             case Protocol.QUEUE_LEAVE -> onQueueLeave();
             case Protocol.QUEUE_STATUS -> onQueueStatus();
+            case Protocol.MATCH_ACCEPT -> onMatchAccept();
+            case Protocol.MATCH_DECLINE -> onMatchDecline();
             case Protocol.GAME_CLICK -> gameService.onGameClick(session, (Map<?,?>) msg.payload);
             case Protocol.GAME_QUIT -> gameService.onGameQuit(session, (Map<?,?>) msg.payload);
             case Protocol.LEADERBOARD -> onLeaderboard();
@@ -93,6 +96,18 @@ public class ClientHandler implements Runnable {
         if (session.username != null) {
             Map<String, Object> status = queueService.getQueueStatus(session.username);
             session.send(new Message(Protocol.QUEUE_STATUS, status).toJson());
+        }
+    }
+
+    private void onMatchAccept() {
+        if (session.username != null) {
+            queueService.handleMatchAccept(session.username);
+        }
+    }
+
+    private void onMatchDecline() {
+        if (session.username != null) {
+            queueService.handleMatchDecline(session.username);
         }
     }
 

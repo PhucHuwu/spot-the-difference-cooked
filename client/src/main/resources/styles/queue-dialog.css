@@ -1,0 +1,249 @@
+/* ============================================
+   QUEUE DIALOG - RIOT GAMES STYLE
+   ============================================ */
+
+/* Root Container */
+.queue-dialog-root {
+    -fx-background-color: transparent;
+}
+
+/* Hextech Background Pattern */
+.hextech-background {
+    -fx-background-color: linear-gradient(
+        to bottom,
+        rgba(1, 10, 19, 0.98) 0%,
+        rgba(16, 24, 32, 0.98) 50%,
+        rgba(1, 10, 19, 0.98) 100%
+    );
+    -fx-background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='rgba(200,170,110,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+    -fx-background-size: 60px 60px;
+    -fx-background-repeat: repeat;
+}
+
+/* Main Container */
+.queue-dialog-container {
+    -fx-background-color: transparent;
+}
+
+/* ============================================
+   DECORATIONS
+   ============================================ */
+
+.decoration-top,
+.decoration-bottom {
+    -fx-opacity: 0.6;
+}
+
+.decoration-line {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.decoration-hex {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-size: 16px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.queue-mode-title {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 2px;
+}
+
+.queue-status-title {
+    -fx-text-fill: linear-gradient(to right, #F0E6D2 0%, #C8AA6E 100%);
+    -fx-font-size: 32px;
+    -fx-font-weight: 900;
+    -fx-letter-spacing: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.8), 15, 0.7, 0, 0);
+}
+
+/* ============================================
+   SEARCH ANIMATION
+   ============================================ */
+
+.search-animation-container {
+    -fx-background-color: transparent;
+}
+
+/* Outer Ring (280px, Slow Rotation) */
+.search-ring-outer {
+    -fx-min-width: 280px;
+    -fx-min-height: 280px;
+    -fx-max-width: 280px;
+    -fx-max-height: 280px;
+    -fx-background-color: transparent;
+    -fx-border-color: linear-gradient(to bottom, rgba(200, 170, 110, 0.4), rgba(200, 170, 110, 0.1));
+    -fx-border-width: 2px;
+    -fx-border-radius: 140px;
+    -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.4), 12, 0.6, 0, 0);
+}
+
+/* Middle Ring (210px, Pulsing) */
+.search-ring-middle {
+    -fx-min-width: 210px;
+    -fx-min-height: 210px;
+    -fx-max-width: 210px;
+    -fx-max-height: 210px;
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(0, 200, 255, 0.5);
+    -fx-border-width: 2px;
+    -fx-border-radius: 105px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.6), 15, 0.7, 0, 0);
+}
+
+/* Inner Ring (140px, Fast Rotation) */
+.search-ring-inner {
+    -fx-min-width: 140px;
+    -fx-min-height: 140px;
+    -fx-max-width: 140px;
+    -fx-max-height: 140px;
+    -fx-background-color: transparent;
+    -fx-border-color: linear-gradient(to bottom, rgba(200, 170, 110, 0.6), rgba(200, 170, 110, 0.2));
+    -fx-border-width: 2px;
+    -fx-border-radius: 70px;
+    -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.5), 10, 0.6, 0, 0);
+}
+
+/* Center Icon Container */
+.search-center {
+    -fx-background-color: radial-gradient(
+        center 50% 50%,
+        radius 60%,
+        rgba(0, 200, 255, 0.15),
+        transparent
+    );
+    -fx-background-radius: 50px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.6), 18, 0.7, 0, 0);
+    -fx-padding: 15px;
+}
+
+.search-icon {
+    -fx-font-size: 48px;
+    -fx-text-fill: #F0E6D2;
+}
+
+/* ============================================
+   TIMER
+   ============================================ */
+
+.queue-timer {
+    -fx-text-fill: #00C8FF;
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Courier New", monospace;
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.8), 12, 0.7, 0, 0);
+}
+
+.queue-timer-subtitle {
+    -fx-text-fill: rgba(240, 230, 210, 0.6);
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+}
+
+/* ============================================
+   INFO SECTION
+   ============================================ */
+
+.queue-info-section {
+    -fx-background-color: rgba(200, 170, 110, 0.05);
+    -fx-border-color: rgba(200, 170, 110, 0.2);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 15px 25px;
+    -fx-min-width: 400px;
+}
+
+/* Status Indicator (Blinking Green Dot) */
+.status-indicator {
+    -fx-text-fill: #00FF88;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 6, 0.8, 0, 0);
+}
+
+.queue-status-text {
+    -fx-text-fill: #F0E6D2;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.queue-estimate-text {
+    -fx-text-fill: rgba(240, 230, 210, 0.7);
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+}
+
+/* ============================================
+   TIPS BOX
+   ============================================ */
+
+.queue-tips-box {
+    -fx-background-color: rgba(0, 200, 255, 0.08);
+    -fx-border-color: rgba(0, 200, 255, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 10px 15px;
+}
+
+.tips-header {
+    -fx-text-fill: #00C8FF;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+}
+
+.tips-content {
+    -fx-text-fill: rgba(240, 230, 210, 0.8);
+    -fx-font-size: 11px;
+    -fx-line-spacing: 1px;
+}
+
+/* ============================================
+   CANCEL BUTTON
+   ============================================ */
+
+.cancel-queue-button {
+    -fx-background-color: linear-gradient(to bottom, #B43232 0%, #8B2020 100%);
+    -fx-text-fill: #F0E6D2;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+    -fx-border-color: rgba(180, 50, 50, 0.6);
+    -fx-border-width: 2px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(180, 50, 50, 0.6), 10, 0.6, 0, 0);
+}
+
+.cancel-queue-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #D43838 0%, #A02626 100%);
+    -fx-border-color: rgba(180, 50, 50, 0.8);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+    -fx-effect: dropshadow(gaussian, rgba(180, 50, 50, 0.7), 15, 0.7, 0, 0);
+}
+
+.cancel-queue-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #8B2020 0%, #6B1818 100%);
+    -fx-border-color: rgba(180, 50, 50, 0.8);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ============================================
+   TRANSITIONS
+   ============================================ */
+
+.cancel-queue-button {
+    -fx-transition: all 0.2s ease-in-out;
+}

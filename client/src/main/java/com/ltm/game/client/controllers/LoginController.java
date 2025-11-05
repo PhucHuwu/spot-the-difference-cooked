@@ -72,55 +72,81 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
         
+        System.out.println("[LOGIN] handleLogin called - username: " + username);
+        
         if (username.isEmpty() || password.isEmpty()) {
             showError("Vui lòng nhập đầy đủ thông tin");
             return;
         }
         
+        if (networkClient == null) {
+            System.err.println("[LOGIN] ERROR: networkClient is null!");
+            showError("Lỗi kết nối mạng");
+            return;
+        }
+        
+        System.out.println("[LOGIN] Sending AUTH_LOGIN message...");
         networkClient.send(new Message(Protocol.AUTH_LOGIN, Map.of(
             "username", username,
             "password", password
         )));
+        System.out.println("[LOGIN] Message sent!");
     }
 
     public void handleAuthResult(Map<?, ?> payload) {
+        System.out.println("[LOGIN] handleAuthResult called with payload: " + payload);
+        
         boolean success = Boolean.parseBoolean(String.valueOf(payload.get("success")));
+        System.out.println("[LOGIN] Auth success: " + success);
+        
         if (success) {
             Map<?, ?> user = (Map<?, ?>) payload.get("user");
-            String username = String.valueOf(user.get("username"));
+            final String username = String.valueOf(user.get("username"));
+            System.out.println("[LOGIN] User logged in: " + username);
             
             Object tp = user.get("totalPoints");
-            int totalPoints = 0;
+            int pointsTemp = 0;
             if (tp != null) {
                 if (tp instanceof Number) {
-                    totalPoints = ((Number) tp).intValue();
+                    pointsTemp = ((Number) tp).intValue();
                 } else {
                     try {
-                        totalPoints = Integer.parseInt(String.valueOf(tp).split("\\.")[0]);
+                        pointsTemp = Integer.parseInt(String.valueOf(tp).split("\\.")[0]);
                     } catch (Exception e) {
-                        totalPoints = 0;
+                        pointsTemp = 0;
                     }
                 }
             }
+            final int totalPoints = pointsTemp;
             
             Object tw = user.get("totalWins");
-            int totalWins = 0;
+            int winsTemp = 0;
             if (tw != null) {
                 if (tw instanceof Number) {
-                    totalWins = ((Number) tw).intValue();
+                    winsTemp = ((Number) tw).intValue();
                 } else {
                     try {
-                        totalWins = Integer.parseInt(String.valueOf(tw).split("\\.")[0]);
+                        winsTemp = Integer.parseInt(String.valueOf(tw).split("\\.")[0]);
                     } catch (Exception e) {
-                        totalWins = 0;
+                        winsTemp = 0;
                     }
                 }
             }
+            final int totalWins = winsTemp;
+            
+            System.out.println("[LOGIN] Stats - Points: " + totalPoints + ", Wins: " + totalWins);
             
             if (onLoginSuccess != null) {
-                onLoginSuccess.accept(new UserLoginData(username, totalPoints, totalWins));
+                System.out.println("[LOGIN] Calling onLoginSuccess callback...");
+                javafx.application.Platform.runLater(() -> {
+                    onLoginSuccess.accept(new UserLoginData(username, totalPoints, totalWins));
+                    System.out.println("[LOGIN] Callback executed!");
+                });
+            } else {
+                System.err.println("[LOGIN] ERROR: onLoginSuccess callback is null!");
             }
         } else {
+            System.err.println("[LOGIN] Login failed: " + payload.get("message"));
             showError(String.valueOf(payload.get("message")));
         }
     }

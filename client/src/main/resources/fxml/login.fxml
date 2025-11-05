@@ -18,17 +18,17 @@
         </image>
     </ImageView>
     
-    <!-- Dark Overlay -->
-    <Pane style="-fx-background-color: rgba(0, 0, 0, 0.3);"/>
+    <!-- Dark Overlay - Riot Style -->
+    <Pane style="-fx-background-color: rgba(10, 20, 40, 0.7);"/>
     
-    <!-- Login Card with Glass Morphism -->
-    <VBox alignment="CENTER" spacing="25" maxWidth="450" maxHeight="600"
-          style="-fx-background-color: rgba(255, 255, 255, 0.15); 
-                 -fx-background-radius: 25px; 
-                 -fx-border-color: rgba(255, 255, 255, 0.3); 
+    <!-- Login Card - Riot Games Premium Style -->
+    <VBox alignment="CENTER" spacing="25" maxWidth="480" maxHeight="650"
+          style="-fx-background-color: linear-gradient(to bottom, rgba(15, 32, 65, 0.95), rgba(10, 20, 40, 0.98)); 
+                 -fx-background-radius: 20px; 
+                 -fx-border-color: linear-gradient(to bottom, rgba(212, 175, 55, 0.8), rgba(200, 170, 110, 0.5)); 
                  -fx-border-width: 2px; 
-                 -fx-border-radius: 25px; 
-                 -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 30, 0.5, 0, 10);">
+                 -fx-border-radius: 20px; 
+                 -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.3), 40, 0.6, 0, 10);">
         
         <padding>
             <Insets top="50" right="50" bottom="50" left="50"/>
@@ -38,87 +38,96 @@
         <Label text="🌲🎮🌲"
                style="-fx-font-size: 48px;"/>
         
-        <!-- Title -->
+        <!-- Title - Riot Premium Style -->
         <VBox alignment="CENTER" spacing="8">
             <Label text="SPOT THE DIFFERENCE"
-                   style="-fx-font-size: 36px; 
+                   style="-fx-font-size: 38px; 
                           -fx-font-weight: bold; 
-                          -fx-text-fill: white; 
-                          -fx-effect: dropshadow(gaussian, rgba(34, 139, 34, 0.8), 8, 0.7, 0, 2);"/>
+                          -fx-text-fill: linear-gradient(to right, #F0E6D2, #D4AF37); 
+                          -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 15, 0.8, 0, 3);"/>
             
             <Label text="TÌM ĐIỂM KHÁC BIỆT"
-                   style="-fx-font-size: 18px; 
+                   style="-fx-font-size: 16px; 
                           -fx-font-weight: bold; 
-                          -fx-text-fill: rgba(144, 238, 144, 1); 
-                          -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 5, 0.5, 0, 2);"/>
+                          -fx-text-fill: #C8AA6E; 
+                          -fx-letter-spacing: 3px;
+                          -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 5, 0.6, 0, 2);"/>
         </VBox>
         
         <!-- Spacer -->
         <Region minHeight="10"/>
         
-        <!-- Username Field -->
-        <VBox spacing="8" maxWidth="350">
-            <Label text="👤 Tên đăng nhập"
-                   style="-fx-text-fill: white; 
-                          -fx-font-size: 14px; 
+        <!-- Username Field - Riot Style -->
+        <VBox spacing="8" maxWidth="380">
+            <Label text="👤 TÊN ĐĂNG NHẬP"
+                   style="-fx-text-fill: #F0E6D2; 
+                          -fx-font-size: 13px; 
                           -fx-font-weight: bold; 
-                          -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 3, 0.5, 0, 1);"/>
+                          -fx-letter-spacing: 1px;
+                          -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 3, 0.6, 0, 1);"/>
             
             <TextField fx:id="usernameField"
                        promptText="Nhập tên đăng nhập..."
                        style="-fx-font-size: 15px; 
-                              -fx-padding: 15px 20px; 
-                              -fx-background-color: rgba(255, 255, 255, 0.9); 
-                              -fx-background-radius: 15px; 
-                              -fx-border-color: rgba(34, 139, 34, 0.6); 
-                              -fx-border-radius: 15px; 
+                              -fx-padding: 16px 24px; 
+                              -fx-background-color: rgba(20, 30, 50, 0.9); 
+                              -fx-text-fill: #F0E6D2;
+                              -fx-prompt-text-fill: rgba(200, 170, 110, 0.5);
+                              -fx-background-radius: 8px; 
+                              -fx-border-color: rgba(212, 175, 55, 0.4); 
+                              -fx-border-radius: 8px; 
                               -fx-border-width: 2px; 
-                              -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0.4, 0, 2);"/>
+                              -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.5, 0, 3);"/>
         </VBox>
         
-        <!-- Password Field -->
-        <VBox spacing="8" maxWidth="350">
-            <Label text="🔒 Mật khẩu"
-                   style="-fx-text-fill: white; 
-                          -fx-font-size: 14px; 
+        <!-- Password Field - Riot Style -->
+        <VBox spacing="8" maxWidth="380">
+            <Label text="🔒 MẬT KHẨU"
+                   style="-fx-text-fill: #F0E6D2; 
+                          -fx-font-size: 13px; 
                           -fx-font-weight: bold; 
-                          -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 3, 0.5, 0, 1);"/>
+                          -fx-letter-spacing: 1px;
+                          -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 3, 0.6, 0, 1);"/>
             
             <PasswordField fx:id="passwordField"
                            promptText="Nhập mật khẩu..."
                            style="-fx-font-size: 15px; 
-                                  -fx-padding: 15px 20px; 
-                                  -fx-background-color: rgba(255, 255, 255, 0.9); 
-                                  -fx-background-radius: 15px; 
-                                  -fx-border-color: rgba(34, 139, 34, 0.6); 
-                                  -fx-border-radius: 15px; 
+                                  -fx-padding: 16px 24px; 
+                                  -fx-background-color: rgba(20, 30, 50, 0.9); 
+                                  -fx-text-fill: #F0E6D2;
+                                  -fx-prompt-text-fill: rgba(200, 170, 110, 0.5);
+                                  -fx-background-radius: 8px; 
+                                  -fx-border-color: rgba(212, 175, 55, 0.4); 
+                                  -fx-border-radius: 8px; 
                                   -fx-border-width: 2px; 
-                                  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0.4, 0, 2);"/>
+                                  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.5, 0, 3);"/>
         </VBox>
         
         <!-- Spacer -->
         <Region minHeight="5"/>
         
-        <!-- Login Button -->
-        <Button text="🌟 ĐĂNG NHẬP 🌟"
+        <!-- Login Button - Riot Gold Style -->
+        <Button text="⚔️ ĐĂNG NHẬP ⚔️"
                 onAction="#handleLogin"
-                maxWidth="350"
+                maxWidth="380"
                 styleClass="login-button"
                 style="-fx-font-size: 18px; 
                        -fx-font-weight: bold; 
-                       -fx-padding: 16px 50px; 
-                       -fx-background-color: linear-gradient(to right, #228B22, #32CD32); 
-                       -fx-text-fill: white; 
-                       -fx-background-radius: 15px; 
+                       -fx-padding: 18px 60px; 
+                       -fx-background-color: linear-gradient(to bottom, #D4AF37, #C8AA6E); 
+                       -fx-text-fill: #0A1428; 
+                       -fx-background-radius: 8px; 
                        -fx-cursor: hand; 
-                       -fx-effect: dropshadow(gaussian, rgba(34, 139, 34, 0.6), 12, 0.6, 0, 4);"/>
+                       -fx-letter-spacing: 2px;
+                       -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 20, 0.7, 0, 5);"/>
         
-        <!-- Info Text -->
-        <Label text="✨ Chào mừng đến với trò chơi! ✨"
-               style="-fx-text-fill: rgba(255, 255, 255, 0.9); 
-                      -fx-font-size: 13px; 
-                      -fx-font-style: italic; 
-                      -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 3, 0.5, 0, 1);"/>
+        <!-- Info Text - Riot Style -->
+        <Label text="✨ CHÀO MỪNG TỚI TRÒ CHƠI ✨"
+               style="-fx-text-fill: #C8AA6E; 
+                      -fx-font-size: 12px; 
+                      -fx-font-weight: bold;
+                      -fx-letter-spacing: 1px;
+                      -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 3, 0.6, 0, 1);"/>
     </VBox>
     
 </StackPane>

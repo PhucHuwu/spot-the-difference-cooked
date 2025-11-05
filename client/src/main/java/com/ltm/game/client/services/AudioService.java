@@ -19,11 +19,31 @@ public class AudioService {
             String musicPath = getClass().getResource("/sounds/y_ke_que.mp3").toExternalForm();
             backgroundMusic = new AudioClip(musicPath);
             backgroundMusic.setCycleCount(AudioClip.INDEFINITE);
-            backgroundMusic.setVolume(isMuted ? 0.0 : savedBackgroundVolume);
+            if (isMuted) {
+                backgroundMusic.setVolume(0.0);
+            } else {
+                backgroundMusic.setVolume(savedBackgroundVolume);
+            }
             backgroundMusic.play();
-            System.out.println("Playing background music: " + musicPath + " (muted: " + isMuted + ")");
         } catch (Exception e) {
-            System.out.println("Could not load background music: " + e.getMessage());
+            // Error loading background music
+        }
+    }
+
+    public void playLobbyMusic() {
+        stopBackgroundMusic();
+        try {
+            String musicPath = getClass().getResource("/sounds/nhac_ingame.mp3").toExternalForm();
+            backgroundMusic = new AudioClip(musicPath);
+            backgroundMusic.setCycleCount(AudioClip.INDEFINITE);
+            if (isMuted) {
+                backgroundMusic.setVolume(0.0);
+            } else {
+                backgroundMusic.setVolume(savedBackgroundVolume);
+            }
+            backgroundMusic.play();
+        } catch (Exception e) {
+            // Error loading lobby music
         }
     }
 
@@ -39,11 +59,14 @@ public class AudioService {
             String musicPath = getClass().getResource("/sounds/nhac_ingame.mp3").toExternalForm();
             gameMusic = new AudioClip(musicPath);
             gameMusic.setCycleCount(AudioClip.INDEFINITE);
-            gameMusic.setVolume(isMuted ? 0.0 : savedGameVolume);
+            if (isMuted) {
+                gameMusic.setVolume(0.0);
+            } else {
+                gameMusic.setVolume(savedGameVolume);
+            }
             gameMusic.play();
-            System.out.println("Playing game music: " + musicPath + " (muted: " + isMuted + ")");
         } catch (Exception e) {
-            System.out.println("Could not load game music: " + e.getMessage());
+            // Error loading game music
         }
     }
 
@@ -58,18 +81,16 @@ public class AudioService {
             String correctPath = getClass().getResource("/sounds/ye_đoan_dung_roi.mp3").toExternalForm();
             correctSound = new AudioClip(correctPath);
             correctSound.setVolume(0.6);
-            System.out.println("Loaded correct sound: " + correctPath);
         } catch (Exception e) {
-            System.out.println("Could not load correct sound: " + e.getMessage());
+            // Error loading correct sound
         }
 
         try {
             String wrongPath = getClass().getResource("/sounds/phai_chiu.mp3").toExternalForm();
             wrongSound = new AudioClip(wrongPath);
             wrongSound.setVolume(0.5);
-            System.out.println("Loaded wrong sound: " + wrongPath);
         } catch (Exception e) {
-            System.out.println("Could not load wrong sound: " + e.getMessage());
+            // Error loading wrong sound
         }
     }
 
@@ -100,9 +121,8 @@ public class AudioService {
             celebrationSound = new AudioClip(soundPath);
             celebrationSound.setVolume(0.2);
             celebrationSound.play();
-            System.out.println("Playing celebration sound: " + soundPath);
         } catch (Exception e) {
-            System.err.println("Error playing celebration sound: " + e.getMessage());
+            // Error playing celebration sound
         }
     }
 
@@ -112,30 +132,29 @@ public class AudioService {
     }
     
     public void setMuted(boolean muted) {
-        System.out.println("[AudioService] setMuted called: " + muted);
         this.isMuted = muted;
         
         if (muted) {
-            System.out.println("[AudioService] Muting all sounds...");
-            if (backgroundMusic != null) {
-                savedBackgroundVolume = backgroundMusic.getVolume();
+            if (backgroundMusic != null && backgroundMusic.isPlaying()) {
+                double currentVolume = backgroundMusic.getVolume();
+                if (currentVolume > 0.0) {
+                    savedBackgroundVolume = currentVolume;
+                }
                 backgroundMusic.setVolume(0.0);
-                System.out.println("[AudioService] Background music volume: " + savedBackgroundVolume + " -> 0.0");
             }
-            if (gameMusic != null) {
-                savedGameVolume = gameMusic.getVolume();
+            if (gameMusic != null && gameMusic.isPlaying()) {
+                double currentVolume = gameMusic.getVolume();
+                if (currentVolume > 0.0) {
+                    savedGameVolume = currentVolume;
+                }
                 gameMusic.setVolume(0.0);
-                System.out.println("[AudioService] Game music volume: " + savedGameVolume + " -> 0.0");
             }
         } else {
-            System.out.println("[AudioService] Unmuting all sounds...");
-            if (backgroundMusic != null) {
+            if (backgroundMusic != null && backgroundMusic.isPlaying()) {
                 backgroundMusic.setVolume(savedBackgroundVolume);
-                System.out.println("[AudioService] Background music volume: 0.0 -> " + savedBackgroundVolume);
             }
-            if (gameMusic != null) {
+            if (gameMusic != null && gameMusic.isPlaying()) {
                 gameMusic.setVolume(savedGameVolume);
-                System.out.println("[AudioService] Game music volume: 0.0 -> " + savedGameVolume);
             }
         }
     }

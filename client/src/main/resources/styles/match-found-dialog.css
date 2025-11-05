@@ -1,0 +1,293 @@
+/* ============================================
+   MATCH FOUND DIALOG - Riot Games Style
+   League of Legends Inspired Design
+   ============================================ */
+
+/* ============================================
+   ROOT & BACKGROUND
+   ============================================ */
+
+.match-found-root {
+    -fx-background-color: rgba(10, 15, 20, 0.98);
+}
+
+.background-overlay {
+    -fx-fill: linear-gradient(to bottom,
+        rgba(0, 40, 60, 0.95) 0%,
+        rgba(10, 15, 25, 0.98) 50%,
+        rgba(0, 0, 0, 0.99) 100%);
+    -fx-stroke: linear-gradient(to bottom, #00C8FF 0%, #0A7FBF 50%, #005580 100%);
+    -fx-stroke-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.8), 20, 0.7, 0, 0);
+}
+
+.main-container {
+    -fx-background-color: transparent;
+}
+
+/* ============================================
+   DECORATIONS
+   ============================================ */
+
+.decoration-top,
+.decoration-bottom {
+    -fx-opacity: 0.6;
+}
+
+.decoration-line {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.decoration-hex {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-size: 14px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.match-found-title {
+    -fx-text-fill: #00C8FF;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 3px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.8), 15, 0.8, 0, 0);
+}
+
+.match-subtitle {
+    -fx-text-fill: #F0E6D2;
+    -fx-font-size: 13px;
+    -fx-letter-spacing: 2px;
+    -fx-opacity: 0.8;
+}
+
+/* ============================================
+   ANIMATED RINGS
+   ============================================ */
+
+.rings-container {
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.6), 25, 0.7, 0, 0);
+}
+
+.ring-outer {
+    -fx-fill: transparent;
+    -fx-stroke: linear-gradient(to bottom, #00C8FF 0%, #0A7FBF 100%);
+    -fx-stroke-width: 3px;
+    -fx-stroke-dash-array: 15 10;
+    -fx-opacity: 0.7;
+}
+
+.ring-middle {
+    -fx-fill: transparent;
+    -fx-stroke: linear-gradient(to bottom, #0A7FBF 0%, #005580 100%);
+    -fx-stroke-width: 2px;
+    -fx-stroke-dash-array: 10 8;
+    -fx-opacity: 0.6;
+}
+
+.ring-inner {
+    -fx-fill: radial-gradient(center 50% 50%, radius 100%,
+        rgba(0, 200, 255, 0.3) 0%,
+        rgba(0, 120, 180, 0.2) 50%,
+        rgba(0, 60, 100, 0.1) 100%);
+    -fx-stroke: #00C8FF;
+    -fx-stroke-width: 2px;
+    -fx-opacity: 0.8;
+}
+
+/* ============================================
+   COUNTDOWN TIMER
+   ============================================ */
+
+.countdown-timer {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 48px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.9), 10, 0.8, 0, 0);
+}
+
+.countdown-timer.warning {
+    -fx-text-fill: #FF4444;
+    -fx-effect: dropshadow(gaussian, rgba(255, 68, 68, 0.9), 15, 0.9, 0, 0);
+}
+
+.countdown-subtitle {
+    -fx-text-fill: rgba(240, 230, 210, 0.7);
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 2px;
+}
+
+/* ============================================
+   PLAYERS INFO
+   ============================================ */
+
+.players-info-container {
+    -fx-background-color: rgba(0, 200, 255, 0.08);
+    -fx-background-radius: 8px;
+    -fx-padding: 15px 30px;
+    -fx-border-color: rgba(0, 200, 255, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+.player-info {
+    -fx-min-width: 120px;
+}
+
+.player-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 1px;
+}
+
+.player-you {
+    -fx-text-fill: #00C8FF;
+    -fx-effect: dropshadow(gaussian, rgba(0, 200, 255, 0.6), 8, 0.7, 0, 0);
+}
+
+.player-opponent {
+    -fx-text-fill: #FF6B6B;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 107, 0.6), 8, 0.7, 0, 0);
+}
+
+.vs-label {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 2px;
+    -fx-opacity: 0.8;
+}
+
+.player-status {
+    -fx-font-size: 20px;
+}
+
+.player-status-pending {
+    -fx-text-fill: rgba(240, 230, 210, 0.4);
+}
+
+.player-status-ready {
+    -fx-text-fill: #00FF88;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 136, 0.8), 10, 0.8, 0, 0);
+}
+
+.player-status-declined {
+    -fx-text-fill: #FF4444;
+    -fx-effect: dropshadow(gaussian, rgba(255, 68, 68, 0.8), 10, 0.8, 0, 0);
+}
+
+/* ============================================
+   ACTION BUTTONS
+   ============================================ */
+
+.buttons-container {
+    -fx-padding: 10px 0 0 0;
+}
+
+.accept-button {
+    -fx-background-color: linear-gradient(to bottom, #00D084 0%, #00A868 100%);
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 2px;
+    -fx-min-width: 160px;
+    -fx-min-height: 50px;
+    -fx-border-color: rgba(0, 208, 132, 0.6);
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 208, 132, 0.6), 12, 0.7, 0, 0);
+}
+
+.accept-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #00F098 0%, #00C87C 100%);
+    -fx-border-color: rgba(0, 208, 132, 0.9);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(0, 240, 152, 0.8), 18, 0.8, 0, 0);
+}
+
+.accept-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #00A868 0%, #008050 100%);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.accept-button:disabled {
+    -fx-background-color: linear-gradient(to bottom, #555555 0%, #444444 100%);
+    -fx-border-color: rgba(100, 100, 100, 0.4);
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+    -fx-effect: none;
+}
+
+.decline-button {
+    -fx-background-color: linear-gradient(to bottom, #B43232 0%, #8B2020 100%);
+    -fx-text-fill: #F0E6D2;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 2px;
+    -fx-min-width: 160px;
+    -fx-min-height: 50px;
+    -fx-border-color: rgba(180, 50, 50, 0.6);
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(180, 50, 50, 0.6), 12, 0.7, 0, 0);
+}
+
+.decline-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #D43838 0%, #A02626 100%);
+    -fx-border-color: rgba(180, 50, 50, 0.9);
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(212, 56, 56, 0.8), 18, 0.8, 0, 0);
+}
+
+.decline-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #8B2020 0%, #6B1818 100%);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.decline-button:disabled {
+    -fx-background-color: linear-gradient(to bottom, #555555 0%, #444444 100%);
+    -fx-border-color: rgba(100, 100, 100, 0.4);
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+    -fx-effect: none;
+}
+
+/* ============================================
+   WARNING TEXT
+   ============================================ */
+
+.warning-text {
+    -fx-text-fill: rgba(255, 200, 100, 0.8);
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+    -fx-padding: 5px 0 0 0;
+}
+
+/* ============================================
+   ANIMATIONS & TRANSITIONS
+   ============================================ */
+
+@keyframes pulse {
+    0% { -fx-scale-x: 1.0; -fx-scale-y: 1.0; }
+    50% { -fx-scale-x: 1.05; -fx-scale-y: 1.05; }
+    100% { -fx-scale-x: 1.0; -fx-scale-y: 1.0; }
+}
+
+@keyframes glow {
+    0% { -fx-opacity: 0.6; }
+    50% { -fx-opacity: 1.0; }
+    100% { -fx-opacity: 0.6; }
+}
+

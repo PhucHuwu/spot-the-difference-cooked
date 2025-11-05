@@ -57,24 +57,12 @@
                                style="-fx-font-size: 14px; 
                                       -fx-font-weight: bold; 
                                       -fx-text-fill: #F0E6D2;"/>
+
                     </VBox>
                 </HBox>
                 
                 <!-- Right: Controls -->
                 <HBox spacing="10" alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                    <Button fx:id="muteButton"
-                            text="🔊"
-                            onAction="#handleToggleMute"
-                            style="-fx-font-size: 16px; 
-                                   -fx-padding: 8px 12px; 
-                                   -fx-background-color: rgba(30, 35, 40, 0.8); 
-                                   -fx-text-fill: #C8AA6E; 
-                                   -fx-background-radius: 5px; 
-                                   -fx-border-color: rgba(200, 170, 110, 0.3);
-                                   -fx-border-radius: 5px;
-                                   -fx-border-width: 1px;
-                                   -fx-cursor: hand;"/>
-                    
                     <Button text="THOÁT"
                             onAction="#handleLogout"
                             style="-fx-font-size: 12px; 
@@ -222,13 +210,13 @@
                                      -fx-padding: 15px 25px;
                                      -fx-cursor: hand;
                                      -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.8), 15, 0.6, 0, 4);">
-                            <Label text="🏆 1V1 RANKED"
+                            <Label text="🏆 1VS1 RANKED"
                                    style="-fx-font-size: 20px; 
                                           -fx-font-weight: 900; 
                                           -fx-text-fill: #F0E6D2;
                                           -fx-letter-spacing: 2px;
                                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 3, 1, 0, 2);"/>
-                            <Label text="Xếp hạng - Tìm trận đấu"
+                            <Label text="Xếp hạng"
                                    style="-fx-font-size: 12px; 
                                           -fx-text-fill: rgba(240,230,210,0.8);"/>
                         </VBox>
@@ -257,12 +245,6 @@
                                               -fx-font-weight: bold; 
                                               -fx-text-fill: #C8AA6E;
                                               -fx-letter-spacing: 1px;"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <CheckBox fx:id="autoRefresh"
-                                          text="Auto"
-                                          selected="true"
-                                          style="-fx-text-fill: #A09B8C; 
-                                                 -fx-font-size: 11px;"/>
                             </HBox>
                             
                             <TextField fx:id="searchField"

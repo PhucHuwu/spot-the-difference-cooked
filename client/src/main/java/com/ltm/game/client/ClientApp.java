@@ -54,73 +54,51 @@ public class ClientApp extends Application {
         stage.setWidth(screenBounds.getWidth());
         stage.setHeight(screenBounds.getHeight());
         
+        stage.setOnCloseRequest(event -> {
+            Platform.exit();
+        });
+        
         showLogin();
         stage.show();
     }
 
-    private void handleLogout() {
-        System.out.println("[LOGOUT] Started");
-        
-        try {
-            System.out.println("[LOGOUT] Resetting state...");
-            this.username = null;
-            this.totalPoints = 0;
-            this.totalWins = 0;
-            this.currentRoomId = null;
-            this.pendingLobbyList = null;
-            
-            final NetworkClient oldClient = this.networkClient;
-            
-            System.out.println("[LOGOUT] Starting background disconnect and reconnect...");
-            new Thread(() -> {
-                try {
-                    if (oldClient != null) {
-                        oldClient.disconnect();
-                        System.out.println("[LOGOUT] Old client disconnected");
-                    }
-                    Thread.sleep(300);
-                    
-                    this.networkClient = new NetworkClient(this::onMessage);
-                    networkClient.connect();
-                    System.out.println("[LOGOUT] New client connected");
-                    
-                    Platform.runLater(() -> {
-                        System.out.println("[LOGOUT] Showing login screen on JavaFX thread");
-                        showLogin();
-                    });
-                } catch (Exception e) {
-                    System.err.println("[LOGOUT] Error in background: " + e.getMessage());
-                    e.printStackTrace();
-                    Platform.runLater(() -> {
-                        this.networkClient = new NetworkClient(this::onMessage);
-                        try {
-                            networkClient.connect();
-                            showLogin();
-                        } catch (Exception ex) {
-                            System.err.println("[LOGOUT] Fallback failed: " + ex.getMessage());
-                        }
-                    });
-                }
-            }, "logout-thread").start();
-            
-            System.out.println("[LOGOUT] Logout initiated, waiting for reconnection...");
-        } catch (Exception e) {
-            System.err.println("[LOGOUT] Exception: " + e.getMessage());
-            e.printStackTrace();
+    @Override
+    public void stop() {
+        cleanup();
+    }
+
+    private void cleanup() {
+        if (audioService != null) {
+            audioService.stopBackgroundMusic();
+            audioService.stopGameMusic();
         }
+        if (networkClient != null) {
+            networkClient.disconnect();
+        }
+    }
+
+    private void handleLogout() {
+        this.username = null;
+        this.totalPoints = 0;
+        this.totalWins = 0;
+        this.currentRoomId = null;
+        this.pendingLobbyList = null;
+        this.lobbyController = null;
+        this.gameView = null;
+        this.resultController = null;
+        this.leaderboardController = null;
+
+        audioService.stopAll();
+        showLogin();
     }
     
     private void showLogin() {
         try {
-            System.out.println("[showLogin] Starting...");
             audioService.stopAll();
-            System.out.println("[showLogin] Audio stopped");
-            
-            System.out.println("[showLogin] Loading FXML...");
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
             Scene scene = new Scene(loader.load());
-            System.out.println("[showLogin] FXML loaded");
-            
+
             loginController = loader.getController();
             loginController.setNetworkClient(networkClient);
             loginController.setOnLoginSuccess((data) -> {
@@ -129,24 +107,21 @@ public class ClientApp extends Application {
                 this.totalWins = data.totalWins;
                 showLobby();
             });
-            System.out.println("[showLogin] Controller configured");
-            
+
             stage.setScene(scene);
-            System.out.println("[showLogin] Scene set - Login screen displayed");
         } catch (Exception e) {
-            System.err.println("[showLogin] ERROR: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load login screen", e);
         }
     }
 
     private void showLobby() {
         try {
             audioService.stopGameMusic();
-            // audioService.playBackgroundMusic(); // Tắt nhạc sảnh
-            
+            audioService.playLobbyMusic();
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/lobby.fxml"));
             Scene scene = new Scene(loader.load());
-            
+
             lobbyController = loader.getController();
             lobbyController.setNetworkClient(networkClient);
             lobbyController.setAudioService(audioService);
@@ -154,47 +129,40 @@ public class ClientApp extends Application {
             lobbyController.setTotalPoints(totalPoints);
             lobbyController.setTotalWins(totalWins);
             lobbyController.setStatus("Online");
-            
+
             lobbyController.setOnLogout(v -> {
                 handleLogout();
             });
-            
+
             lobbyController.setOnShowLeaderboard(v -> showLeaderboard());
-            
+
             stage.setScene(scene);
-            
+
             if (pendingLobbyList != null) {
                 lobbyController.updateLobbyList(pendingLobbyList);
                 pendingLobbyList = null;
             }
-            
-            // Request fresh lobby list and leaderboard from server
+
             networkClient.send(new Message(Protocol.LOBBY_REQUEST, null));
             lobbyController.requestLeaderboardData();
         } catch (Exception e) {
-            System.err.println("Error loading lobby view: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load lobby screen", e);
         }
     }
 
     private void showGame() {
         audioService.stopBackgroundMusic();
-        
-        // Update status to In-game
+
         if (lobbyController != null) {
             lobbyController.setStatus("In-game");
         }
-        
+
         gameView = new GameView((x, y) -> {
-            System.out.println("onClick callback triggered: x=" + x + ", y=" + y + ", currentRoomId=" + currentRoomId);
             if (currentRoomId != null) {
-                System.out.println("Sending GAME_CLICK to server...");
                 networkClient.send(new Message(Protocol.GAME_CLICK, Map.of("roomId", currentRoomId, "x", x, "y", y)));
-            } else {
-                System.err.println("currentRoomId is null - cannot send click!");
             }
         }, username, audioService);
-        
+
         stage.setScene(new Scene(gameView.getRoot()));
     }
 
@@ -202,7 +170,7 @@ public class ClientApp extends Application {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/result.fxml"));
             Scene scene = new Scene(loader.load());
-            
+
             resultController = loader.getController();
             resultController.setAudioService(audioService);
             resultController.setNetworkClient(networkClient);
@@ -212,11 +180,10 @@ public class ClientApp extends Application {
                 showLobby();
             });
             resultController.setGameResult(payload, username);
-            
+
             stage.setScene(scene);
         } catch (Exception e) {
-            System.err.println("Error loading result view: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load result screen", e);
         }
     }
 
@@ -224,16 +191,15 @@ public class ClientApp extends Application {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/leaderboard.fxml"));
             Scene scene = new Scene(loader.load());
-            
+
             leaderboardController = loader.getController();
             leaderboardController.setNetworkClient(networkClient);
             leaderboardController.setOnBack(v -> showLobby());
             leaderboardController.requestLeaderboardData();
-            
+
             stage.setScene(scene);
         } catch (Exception e) {
-            System.err.println("Error loading leaderboard view: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load leaderboard screen", e);
         }
     }
 
@@ -272,29 +238,39 @@ public class ClientApp extends Application {
                         lobbyController.onQueueMatched(opponent);
                     }
                 }
+                case Protocol.MATCH_READY -> {
+                    if (lobbyController != null) {
+                        lobbyController.onMatchReady();
+                    }
+                }
+                case Protocol.MATCH_DECLINE -> {
+                    if (lobbyController != null) {
+                        lobbyController.onMatchDeclined((Map<?, ?>) msg.payload);
+                    }
+                }
                 case Protocol.GAME_START -> {
                     Map<?, ?> p = (Map<?, ?>) msg.payload;
                     currentRoomId = String.valueOf(p.get("roomId"));
+
+                    // Ensure Match Found dialog is closed before showing game
+                    if (lobbyController != null) {
+                        lobbyController.ensureMatchDialogClosed();
+                    }
+
                     showGame();
-                    
+
                     try {
                         String b64L = (String) p.get("imgLeft");
                         String b64R = (String) p.get("imgRight");
                         Integer w = p.get("imageWidth") != null ? ((Number) p.get("imageWidth")).intValue() : 0;
                         Integer h = p.get("imageHeight") != null ? ((Number) p.get("imageHeight")).intValue() : 0;
-                        System.out.println("GAME_START: imgLeft=" + (b64L != null ? b64L.length() : "null") + " chars, imgRight=" + (b64R != null ? b64R.length() : "null") + " chars, w=" + w + ", h=" + h);
                         byte[] leftBytes = (b64L != null) ? java.util.Base64.getDecoder().decode(b64L) : null;
                         byte[] rightBytes = (b64R != null) ? java.util.Base64.getDecoder().decode(b64R) : null;
-                        System.out.println("Decoded: leftBytes=" + (leftBytes != null ? leftBytes.length : "null") + " bytes, rightBytes=" + (rightBytes != null ? rightBytes.length : "null") + " bytes");
                         if (gameView != null) {
                             gameView.setImages(leftBytes, rightBytes, w, h);
-                            System.out.println("Called gameView.setImages()");
-                        } else {
-                            System.err.println("gameView is null!");
                         }
                     } catch (Exception e) {
-                        System.err.println("Error decoding images: " + e.getMessage());
-                        e.printStackTrace();
+                        throw new RuntimeException("Failed to decode game images", e);
                     }
                 }
                 case Protocol.GAME_UPDATE -> {
@@ -319,8 +295,6 @@ public class ClientApp extends Application {
                     }
                 }
                 case Protocol.ERROR -> {
-                    String errorMsg = msg.payload != null ? String.valueOf(((Map<?, ?>) msg.payload).get("message")) : "Unknown error";
-                    System.out.println("Error from server: " + errorMsg);
                 }
             }
         });

@@ -64,13 +64,7 @@ public class LobbyController {
     private TextField searchField;
     
     @FXML
-    private CheckBox autoRefresh;
-    
-    @FXML
     private BorderPane rootPane;
-    
-    @FXML
-    private Button muteButton;
 
     @FXML
     private TableView<LeaderboardRow> leaderboardTable;
@@ -97,7 +91,6 @@ public class LobbyController {
     private String myPoints = "0";
     private String myWins = "0";
     private String myStatus = "Online";
-    private boolean isMuted = false;
 
     private Consumer<Void> onLogout;
     private Consumer<Void> onShowLeaderboard;
@@ -141,11 +134,50 @@ public class LobbyController {
 
     @FXML
     private void initialize() {
+        String cssPath = getClass().getResource("/styles/lobby-tables.css").toExternalForm();
+        
         filteredLobby = new FilteredList<>(lobbyData, r -> true);
         lobbyTable.setItems(filteredLobby);
+        lobbyTable.getStylesheets().add(cssPath);
 
         colUser.setCellValueFactory(c -> c.getValue().usernameProperty());
+        colUser.setCellFactory(col -> new TableCell<LobbyUserRow, String>() {
+            @Override
+            protected void updateItem(String name, boolean empty) {
+                super.updateItem(name, empty);
+                if (empty || name == null) {
+                    setText(null);
+                    getStyleClass().remove("player-name-self");
+                    getStyleClass().remove("player-name");
+                } else {
+                    setText(name);
+                    getStyleClass().removeAll("player-name-self", "player-name");
+                    if (name.equals(username)) {
+                        getStyleClass().add("player-name-self");
+                    } else {
+                        getStyleClass().add("player-name");
+                    }
+                }
+            }
+        });
+        
         colPoints.setCellValueFactory(c -> c.getValue().totalPointsProperty());
+        colPoints.setCellFactory(col -> new TableCell<LobbyUserRow, String>() {
+            @Override
+            protected void updateItem(String points, boolean empty) {
+                super.updateItem(points, empty);
+                if (empty || points == null) {
+                    setText(null);
+                    getStyleClass().remove("points-cell");
+                } else {
+                    setText(points);
+                    if (!getStyleClass().contains("points-cell")) {
+                        getStyleClass().add("points-cell");
+                    }
+                }
+            }
+        });
+        
         colStatus.setCellValueFactory(c -> c.getValue().statusProperty());
         colStatus.setCellFactory(col -> new TableCell<LobbyUserRow, String>() {
             @Override
@@ -153,15 +185,14 @@ public class LobbyController {
                 super.updateItem(status, empty);
                 if (empty || status == null) {
                     setText(null);
-                    setStyle("");
+                    getStyleClass().removeAll("status-online", "status-ingame");
                 } else {
                     setText(status);
+                    getStyleClass().removeAll("status-online", "status-ingame");
                     if (status.equals("Online")) {
-                        setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                        getStyleClass().add("status-online");
                     } else if (status.equals("In-game")) {
-                        setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
-                    } else {
-                        setStyle("");
+                        getStyleClass().add("status-ingame");
                     }
                 }
             }
@@ -169,9 +200,73 @@ public class LobbyController {
         colAction.setCellFactory(makeActionCellFactory());
 
         leaderboardTable.setItems(leaderboardData);
+        leaderboardTable.getStylesheets().add(cssPath);
+        
         colRank.setCellValueFactory(c -> c.getValue().rankProperty());
+        colRank.setCellFactory(col -> new TableCell<LeaderboardRow, String>() {
+            @Override
+            protected void updateItem(String rank, boolean empty) {
+                super.updateItem(rank, empty);
+                if (empty || rank == null) {
+                    setText(null);
+                    getStyleClass().removeAll("rank-1", "rank-2", "rank-3", "rank-top10");
+                } else {
+                    setText(rank);
+                    getStyleClass().removeAll("rank-1", "rank-2", "rank-3", "rank-top10");
+                    try {
+                        int rankNum = Integer.parseInt(rank);
+                        if (rankNum == 1) {
+                            getStyleClass().add("rank-1");
+                        } else if (rankNum == 2) {
+                            getStyleClass().add("rank-2");
+                        } else if (rankNum == 3) {
+                            getStyleClass().add("rank-3");
+                        } else if (rankNum <= 10) {
+                            getStyleClass().add("rank-top10");
+                        }
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        });
+        
         colPlayer.setCellValueFactory(c -> c.getValue().usernameProperty());
+        colPlayer.setCellFactory(col -> new TableCell<LeaderboardRow, String>() {
+            @Override
+            protected void updateItem(String name, boolean empty) {
+                super.updateItem(name, empty);
+                if (empty || name == null) {
+                    setText(null);
+                    getStyleClass().removeAll("player-name-self", "player-name");
+                } else {
+                    setText(name);
+                    getStyleClass().removeAll("player-name-self", "player-name");
+                    if (name.equals(username)) {
+                        getStyleClass().add("player-name-self");
+                    } else {
+                        getStyleClass().add("player-name");
+                    }
+                }
+            }
+        });
+        
         colScore.setCellValueFactory(c -> c.getValue().totalPointsProperty());
+        colScore.setCellFactory(col -> new TableCell<LeaderboardRow, String>() {
+            @Override
+            protected void updateItem(String score, boolean empty) {
+                super.updateItem(score, empty);
+                if (empty || score == null) {
+                    setText(null);
+                    getStyleClass().remove("points-cell");
+                } else {
+                    setText(score);
+                    if (!getStyleClass().contains("points-cell")) {
+                        getStyleClass().add("points-cell");
+                    }
+                }
+            }
+        });
+        
         colWins.setCellValueFactory(c -> c.getValue().totalWinsProperty());
 
         searchField.textProperty().addListener((obs, old, q) -> {
@@ -179,8 +274,6 @@ public class LobbyController {
             filteredLobby.setPredicate(row ->
                 query.isEmpty() || row.getUsername().toLowerCase().contains(query));
         });
-
-        System.out.println("✓ Lobby controller initialized with forest background!");
     }
 
     @FXML
@@ -194,14 +287,12 @@ public class LobbyController {
 
     @FXML
     private void handleFindMatch() {
-        System.out.println("Find match clicked");
         networkClient.send(new Message(Protocol.QUEUE_JOIN, null));
         showQueueDialog();
     }
 
     @FXML
     private void handleShowLeaderboard() {
-        System.out.println("Leaderboard clicked");
         if (onShowLeaderboard != null) {
             onShowLeaderboard.accept(null);
         }
@@ -217,6 +308,9 @@ public class LobbyController {
     private Stage queueDialog;
     private Label queueTimerLabel;
     private javafx.animation.Timeline queueTimer;
+    private javafx.animation.Timeline outerRingAnimation;
+    private javafx.animation.Timeline innerRingAnimation;
+    private javafx.animation.Timeline pulseAnimation;
     private int queueWaitSeconds = 0;
     
     private void showQueueDialog() {
@@ -224,73 +318,45 @@ public class LobbyController {
             return;
         }
         
-        queueDialog = new Stage();
-        queueDialog.initModality(Modality.APPLICATION_MODAL);
-        queueDialog.setTitle("Đang tìm trận...");
-        queueDialog.setResizable(false);
-        queueDialog.setOnCloseRequest(e -> {
-            e.consume();
-            leaveQueue();
-        });
-        
-        VBox dialogContent = new VBox(25);
-        dialogContent.setAlignment(Pos.CENTER);
-        dialogContent.setPadding(new Insets(40, 60, 40, 60));
-        dialogContent.setStyle(
-            "-fx-background-color: linear-gradient(to bottom right, #2c3e50, #34495e);" +
-            "-fx-background-radius: 20px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 25, 0.8, 0, 5);"
-        );
-        
-        Label iconLabel = new Label("⚔️");
-        iconLabel.setStyle("-fx-font-size: 64px;");
-        
-        Label headerLabel = new Label("ĐANG TÌM ĐỐI THỦ");
-        headerLabel.setStyle(
-            "-fx-font-size: 24px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-effect: dropshadow(gaussian, rgba(231,76,60,0.8), 8, 0.7, 0, 0);"
-        );
-        
-        queueTimerLabel = new Label("Thời gian chờ: 0 giây");
-        queueTimerLabel.setStyle(
-            "-fx-font-size: 18px;" +
-            "-fx-text-fill: #3498db;" +
-            "-fx-font-weight: bold;" +
-            "-fx-padding: 15px;" +
-            "-fx-background-color: rgba(255,255,255,0.1);" +
-            "-fx-background-radius: 10px;"
-        );
-        
-        Label infoLabel = new Label("Đang tìm kiếm đối thủ phù hợp...");
-        infoLabel.setStyle(
-            "-fx-font-size: 14px;" +
-            "-fx-text-fill: rgba(255,255,255,0.8);" +
-            "-fx-font-style: italic;"
-        );
-        
-        Button cancelBtn = new Button("❌ Rời hàng chờ");
-        cancelBtn.setStyle(
-            "-fx-font-size: 16px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: #e74c3c;" +
-            "-fx-background-radius: 25px;" +
-            "-fx-padding: 12px 30px;" +
-            "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(231,76,60,0.6), 10, 0.6, 0, 3);"
-        );
-        cancelBtn.setOnAction(e -> leaveQueue());
-        
-        dialogContent.getChildren().addAll(iconLabel, headerLabel, queueTimerLabel, infoLabel, cancelBtn);
-        
-        Scene dialogScene = new Scene(dialogContent);
-        dialogScene.setFill(Color.TRANSPARENT);
-        queueDialog.setScene(dialogScene);
-        
-        startQueueTimer();
-        queueDialog.show();
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/fxml/queue-dialog.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
+            
+            queueTimerLabel = (Label) root.lookup("#queueTimerLabel");
+            Button cancelButton = (Button) root.lookup("#cancelQueueButton");
+            
+            if (cancelButton != null) {
+                cancelButton.setOnAction(e -> leaveQueue());
+            }
+            
+            queueDialog = new Stage();
+            queueDialog.initModality(Modality.APPLICATION_MODAL);
+            queueDialog.setTitle("Đang tìm trận");
+            queueDialog.setResizable(false);
+            queueDialog.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            queueDialog.setOnCloseRequest(e -> {
+                e.consume();
+                leaveQueue();
+            });
+            
+            Scene dialogScene = new Scene(root);
+            dialogScene.setFill(Color.TRANSPARENT);
+            dialogScene.getStylesheets().add(
+                getClass().getResource("/styles/queue-dialog.css").toExternalForm()
+            );
+            queueDialog.setScene(dialogScene);
+            
+            startQueueTimer();
+            startQueueAnimations(root);
+            
+            queueDialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showStyledAlert("Lỗi", "Không thể hiển thị hàng chờ: " + e.getMessage(), 
+                Alert.AlertType.ERROR);
+        }
     }
     
     private void startQueueTimer() {
@@ -299,7 +365,9 @@ public class LobbyController {
             new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1), e -> {
                 queueWaitSeconds++;
                 if (queueTimerLabel != null) {
-                    queueTimerLabel.setText("Thời gian chờ: " + queueWaitSeconds + " giây");
+                    int minutes = queueWaitSeconds / 60;
+                    int seconds = queueWaitSeconds % 60;
+                    queueTimerLabel.setText(String.format("%02d:%02d", minutes, seconds));
                 }
             })
         );
@@ -307,10 +375,87 @@ public class LobbyController {
         queueTimer.play();
     }
     
+    private void startQueueAnimations(javafx.scene.Parent root) {
+        javafx.scene.Node outerRing = root.lookup(".search-ring-outer");
+        javafx.scene.Node innerRing = root.lookup(".search-ring-inner");
+        javafx.scene.Node middleRing = root.lookup(".search-ring-middle");
+        javafx.scene.Node statusIndicator = root.lookup(".status-indicator");
+        
+        if (outerRing != null) {
+            outerRingAnimation = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.ZERO,
+                    new javafx.animation.KeyValue(outerRing.rotateProperty(), 0)),
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(20),
+                    new javafx.animation.KeyValue(outerRing.rotateProperty(), 360))
+            );
+            outerRingAnimation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+            outerRingAnimation.play();
+        }
+        
+        if (innerRing != null) {
+            innerRingAnimation = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.ZERO,
+                    new javafx.animation.KeyValue(innerRing.rotateProperty(), 0)),
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(8),
+                    new javafx.animation.KeyValue(innerRing.rotateProperty(), -360))
+            );
+            innerRingAnimation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+            innerRingAnimation.play();
+        }
+        
+        if (middleRing != null) {
+            pulseAnimation = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.ZERO,
+                    new javafx.animation.KeyValue(middleRing.scaleXProperty(), 1.0),
+                    new javafx.animation.KeyValue(middleRing.scaleYProperty(), 1.0),
+                    new javafx.animation.KeyValue(middleRing.opacityProperty(), 0.5)),
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1.5),
+                    new javafx.animation.KeyValue(middleRing.scaleXProperty(), 1.1),
+                    new javafx.animation.KeyValue(middleRing.scaleYProperty(), 1.1),
+                    new javafx.animation.KeyValue(middleRing.opacityProperty(), 0.8)),
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(3),
+                    new javafx.animation.KeyValue(middleRing.scaleXProperty(), 1.0),
+                    new javafx.animation.KeyValue(middleRing.scaleYProperty(), 1.0),
+                    new javafx.animation.KeyValue(middleRing.opacityProperty(), 0.5))
+            );
+            pulseAnimation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+            pulseAnimation.play();
+        }
+        
+        if (statusIndicator != null) {
+            javafx.animation.Timeline blinkAnimation = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(javafx.util.Duration.ZERO,
+                    new javafx.animation.KeyValue(statusIndicator.opacityProperty(), 1.0)),
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(0.6),
+                    new javafx.animation.KeyValue(statusIndicator.opacityProperty(), 0.3)),
+                new javafx.animation.KeyFrame(javafx.util.Duration.seconds(1.2),
+                    new javafx.animation.KeyValue(statusIndicator.opacityProperty(), 1.0))
+            );
+            blinkAnimation.setCycleCount(javafx.animation.Timeline.INDEFINITE);
+            blinkAnimation.play();
+        }
+    }
+    
+    private void stopQueueAnimations() {
+        if (outerRingAnimation != null) {
+            outerRingAnimation.stop();
+            outerRingAnimation = null;
+        }
+        if (innerRingAnimation != null) {
+            innerRingAnimation.stop();
+            innerRingAnimation = null;
+        }
+        if (pulseAnimation != null) {
+            pulseAnimation.stop();
+            pulseAnimation = null;
+        }
+    }
+    
     private void leaveQueue() {
         if (queueTimer != null) {
             queueTimer.stop();
         }
+        stopQueueAnimations();
         networkClient.send(new Message(Protocol.QUEUE_LEAVE, null));
         if (queueDialog != null) {
             queueDialog.close();
@@ -318,37 +463,109 @@ public class LobbyController {
         }
     }
     
+    private Stage matchFoundDialog;
+    private MatchFoundController matchFoundController;
+
     public void onQueueMatched(String opponent) {
         if (queueTimer != null) {
             queueTimer.stop();
         }
+        stopQueueAnimations();
         if (queueDialog != null) {
             queueDialog.close();
             queueDialog = null;
         }
-        
+
         javafx.application.Platform.runLater(() -> {
-            showStyledAlert("Tìm thấy đối thủ!", 
-                "Đã tìm thấy đối thủ: " + opponent + "\nTrận đấu sắp bắt đầu!", 
-                Alert.AlertType.INFORMATION);
+            showMatchFoundDialog(opponent);
+        });
+    }
+
+    private void showMatchFoundDialog(String opponent) {
+        if (matchFoundDialog != null && matchFoundDialog.isShowing()) {
+            return;
+        }
+
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/fxml/match-found.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
+
+            matchFoundController = loader.getController();
+            matchFoundController.setNetworkClient(networkClient);
+            matchFoundController.setUsername(username);
+            matchFoundController.setOpponentName(opponent);
+
+            matchFoundDialog = new Stage();
+            matchFoundDialog.initModality(Modality.APPLICATION_MODAL);
+            matchFoundDialog.setTitle("Match Found");
+            matchFoundDialog.setResizable(false);
+            matchFoundDialog.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            matchFoundDialog.setOnCloseRequest(e -> {
+                e.consume();
+            });
+
+            matchFoundController.setDialogStage(matchFoundDialog);
+
+            Scene dialogScene = new Scene(root);
+            dialogScene.setFill(Color.TRANSPARENT);
+            dialogScene.getStylesheets().add(
+                getClass().getResource("/styles/match-found-dialog.css").toExternalForm()
+            );
+            matchFoundDialog.setScene(dialogScene);
+
+            matchFoundController.startCountdown();
+
+            matchFoundDialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showStyledAlert("Lỗi", "Không thể hiển thị Match Found dialog: " + e.getMessage(),
+                Alert.AlertType.ERROR);
+        }
+    }
+
+    public void onMatchReady() {
+        javafx.application.Platform.runLater(() -> {
+            if (matchFoundController != null) {
+                matchFoundController.onMatchStarting();
+            }
+        });
+    }
+
+    public void onMatchDeclined(Map<?, ?> payload) {
+        javafx.application.Platform.runLater(() -> {
+            String reason = payload != null ? String.valueOf(payload.get("reason")) : "";
+            String decliner = payload != null ? String.valueOf(payload.get("decliner")) : "";
+
+            if (matchFoundController != null) {
+                matchFoundController.onOpponentDeclined(reason, decliner);
+            } else {
+                String message = "Match cancelled";
+                if ("timeout".equals(reason)) {
+                    message = "⏱ Match cancelled - No one accepted in time";
+                } else if (decliner != null && !decliner.isEmpty() && !"null".equals(decliner)) {
+                    message = "❌ " + decliner + " declined the match";
+                }
+
+                showStyledAlert("Match Cancelled", message, Alert.AlertType.WARNING);
+            }
+        });
+    }
+
+    public void ensureMatchDialogClosed() {
+        javafx.application.Platform.runLater(() -> {
+            if (matchFoundController != null) {
+                matchFoundController.closeDialog();
+                matchFoundController = null;
+            }
+            if (matchFoundDialog != null && matchFoundDialog.isShowing()) {
+                matchFoundDialog.close();
+                matchFoundDialog = null;
+            }
         });
     }
     
-    @FXML
-    private void handleToggleMute() {
-        if (audioService != null) {
-            isMuted = !isMuted;
-            audioService.setMuted(isMuted);
-            
-            if (isMuted) {
-                muteButton.setText("🔇");
-                muteButton.setStyle("-fx-font-size: 20px; -fx-padding: 10px 15px; -fx-background-color: rgba(149, 165, 166, 0.8); -fx-text-fill: white; -fx-background-radius: 50%; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0.5, 0, 2);");
-            } else {
-                muteButton.setText("🔊");
-                muteButton.setStyle("-fx-font-size: 20px; -fx-padding: 10px 15px; -fx-background-color: rgba(52, 73, 94, 0.8); -fx-text-fill: white; -fx-background-radius: 50%; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0.5, 0, 2);");
-            }
-        }
-    }
 
     public void updateLobbyList(List<Map<String, Object>> list) {
         lobbyData.clear();

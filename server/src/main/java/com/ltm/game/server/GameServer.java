@@ -1,9 +1,5 @@
 package com.ltm.game.server;
 
-import com.ltm.game.shared.Message;
-import com.ltm.game.shared.Protocol;
-
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;

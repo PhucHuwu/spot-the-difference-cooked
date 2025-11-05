@@ -3,7 +3,6 @@ package com.ltm.game.server;
 import com.ltm.game.shared.models.User;
 
 import java.sql.*;
-import java.util.Optional;
 
 public class UserRepository {
     private Connection getConn() throws Exception {

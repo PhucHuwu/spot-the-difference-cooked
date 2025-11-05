@@ -1,0 +1,233 @@
+/* ============================================
+   RIOT GAMES STYLE - LOBBY TABLES
+   Color Palette:
+   - Gold: #C8AA6E, #F0E6D2, #785A28
+   - Dark: #010A13, #1E2328
+   - Accent Blue: #0AC8B9, #0397AB
+   - Accent Red: #D13639
+   ============================================ */
+
+/* ===== COMMON TABLE STYLING ===== */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, rgba(1, 10, 19, 0.95), rgba(30, 35, 40, 0.95));
+    -fx-border-color: rgba(200, 170, 110, 0.3);
+    -fx-border-width: 0 0 2 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(200, 170, 110, 0.15);
+    -fx-border-width: 0 1 0 0;
+    -fx-padding: 12px 8px;
+}
+
+.table-view .column-header .label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #C8AA6E;
+    -fx-alignment: center-left;
+    -fx-letter-spacing: 0.5px;
+}
+
+.table-view .table-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #F0E6D2;
+    -fx-font-size: 13px;
+    -fx-padding: 10px 8px;
+    -fx-border-color: rgba(200, 170, 110, 0.08);
+    -fx-border-width: 0 0 1 0;
+    -fx-alignment: center-left;
+}
+
+/* Alternating Row Colors (subtle) */
+.table-row-cell:odd {
+    -fx-background-color: rgba(200, 170, 110, 0.03);
+}
+
+.table-row-cell:even {
+    -fx-background-color: rgba(1, 10, 19, 0.3);
+}
+
+/* Hover Effect - Riot Games Blue Glow */
+.table-row-cell:hover {
+    -fx-background-color: rgba(10, 200, 185, 0.12);
+    -fx-cursor: hand;
+}
+
+.table-row-cell:hover .table-cell {
+    -fx-text-fill: #0AC8B9;
+}
+
+/* Selected Row - Gold Highlight */
+.table-row-cell:selected {
+    -fx-background-color: rgba(200, 170, 110, 0.25);
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: #F0E6D2;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell:selected:hover {
+    -fx-background-color: rgba(200, 170, 110, 0.35);
+}
+
+/* Remove focus border */
+.table-view:focused .table-row-cell:selected {
+    -fx-background-color: rgba(200, 170, 110, 0.25);
+}
+
+/* Scrollbar Styling - Riot Games Dark Theme */
+.table-view .scroll-bar:vertical {
+    -fx-background-color: rgba(1, 10, 19, 0.5);
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-pref-width: 10px;
+}
+
+.table-view .scroll-bar:horizontal {
+    -fx-background-color: rgba(1, 10, 19, 0.5);
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-pref-height: 10px;
+}
+
+.table-view .scroll-bar .thumb {
+    -fx-background-color: linear-gradient(to bottom, #C8AA6E, #785A28);
+    -fx-background-radius: 5px;
+    -fx-background-insets: 2;
+}
+
+.table-view .scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #F0E6D2, #C8AA6E);
+}
+
+.table-view .scroll-bar .thumb:pressed {
+    -fx-background-color: #C8AA6E;
+}
+
+.table-view .scroll-bar .increment-button,
+.table-view .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+}
+
+.table-view .scroll-bar .increment-arrow,
+.table-view .scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+/* Empty Table Placeholder */
+.table-view .placeholder .label {
+    -fx-text-fill: #5B5A56;
+    -fx-font-size: 14px;
+    -fx-font-style: italic;
+}
+
+/* ===== STATUS COLUMN SPECIFIC STYLING ===== */
+.status-online {
+    -fx-text-fill: #0AC8B9 !important;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(10, 200, 185, 0.4), 4, 0.6, 0, 0);
+}
+
+.status-ingame {
+    -fx-text-fill: #D13639 !important;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(209, 54, 57, 0.4), 4, 0.6, 0, 0);
+}
+
+/* ===== RANK COLUMN SPECIFIC STYLING ===== */
+.rank-1 {
+    -fx-text-fill: #FFD700 !important;
+    -fx-font-weight: 900;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.6), 6, 0.7, 0, 0);
+}
+
+.rank-2 {
+    -fx-text-fill: #C0C0C0 !important;
+    -fx-font-weight: 900;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(192, 192, 192, 0.6), 6, 0.7, 0, 0);
+}
+
+.rank-3 {
+    -fx-text-fill: #CD7F32 !important;
+    -fx-font-weight: 900;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(205, 127, 50, 0.6), 6, 0.7, 0, 0);
+}
+
+.rank-top10 {
+    -fx-text-fill: #C8AA6E !important;
+    -fx-font-weight: bold;
+}
+
+/* ===== PLAYER NAME COLUMN ===== */
+.player-name {
+    -fx-text-fill: #F0E6D2;
+    -fx-font-size: 13px;
+}
+
+.player-name-self {
+    -fx-text-fill: #C8AA6E !important;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.5), 4, 0.6, 0, 0);
+}
+
+/* ===== POINTS/SCORE COLUMN ===== */
+.points-cell {
+    -fx-text-fill: #0AC8B9;
+    -fx-font-weight: bold;
+    -fx-font-family: "Consolas", "Courier New", monospace;
+}
+
+/* ===== ACTION BUTTON STYLING ===== */
+.table-view .button {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0E6D2;
+    -fx-background-color: rgba(200, 170, 110, 0.15);
+    -fx-background-radius: 4px;
+    -fx-border-color: rgba(200, 170, 110, 0.4);
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+    -fx-padding: 6px 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0.5, 0, 2);
+}
+
+.table-view .button:hover {
+    -fx-background-color: rgba(200, 170, 110, 0.3);
+    -fx-border-color: #C8AA6E;
+    -fx-text-fill: #C8AA6E;
+    -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.6), 6, 0.7, 0, 2);
+}
+
+.table-view .button:pressed {
+    -fx-background-color: rgba(200, 170, 110, 0.5);
+    -fx-translate-y: 1px;
+}
+
+/* ===== CORNER & FILLER ===== */
+.table-view .filler {
+    -fx-background-color: rgba(1, 10, 19, 0.95);
+    -fx-border-color: rgba(200, 170, 110, 0.3);
+    -fx-border-width: 0 0 2 0;
+}
+
+.table-view .corner {
+    -fx-background-color: rgba(1, 10, 19, 0.95);
+}
+
