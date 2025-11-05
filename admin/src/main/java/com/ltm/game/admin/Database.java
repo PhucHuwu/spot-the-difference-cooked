@@ -16,7 +16,7 @@ public class Database {
             }
             url = props.getProperty("db.url", "jdbc:mysql://localhost:3306/spotgame");
             user = props.getProperty("db.user", "root");
-            pass = props.getProperty("db.password", "");
+            pass = props.getProperty("db.password", "root");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

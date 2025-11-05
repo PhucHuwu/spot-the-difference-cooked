@@ -3,6 +3,7 @@ package com.ltm.game.client.controllers;
 import com.ltm.game.shared.Message;
 import com.ltm.game.shared.Protocol;
 import com.ltm.game.client.models.LobbyUserRow;
+import com.ltm.game.client.models.LeaderboardRow;
 import com.ltm.game.client.services.NetworkClient;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,12 +24,26 @@ import javafx.util.Callback;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.function.Consumer;
 
 public class LobbyController {
     @FXML
     private Label headerUserInfo;
+    
+    @FXML
+    private Label statsWinsLabel;
+    
+    @FXML
+    private Label statsPointsLabel;
+    
+    @FXML
+    private Label rankIconLabel;
+    
+    @FXML
+    private Label rankPositionLabel;
+    
+    @FXML
+    private Label rankDescriptionLabel;
     
     @FXML
     private TableView<LobbyUserRow> lobbyTable;
@@ -57,16 +72,33 @@ public class LobbyController {
     @FXML
     private Button muteButton;
 
+    @FXML
+    private TableView<LeaderboardRow> leaderboardTable;
+
+    @FXML
+    private TableColumn<LeaderboardRow, String> colRank;
+
+    @FXML
+    private TableColumn<LeaderboardRow, String> colPlayer;
+
+    @FXML
+    private TableColumn<LeaderboardRow, String> colScore;
+
+    @FXML
+    private TableColumn<LeaderboardRow, String> colWins;
+
     private ObservableList<LobbyUserRow> lobbyData = FXCollections.observableArrayList();
     private FilteredList<LobbyUserRow> filteredLobby;
-    
+    private ObservableList<LeaderboardRow> leaderboardData = FXCollections.observableArrayList();
+
     private NetworkClient networkClient;
     private com.ltm.game.client.services.AudioService audioService;
     private String username;
     private String myPoints = "0";
-    private String myStatus = "Rảnh";
+    private String myWins = "0";
+    private String myStatus = "Online";
     private boolean isMuted = false;
-    
+
     private Consumer<Void> onLogout;
     private Consumer<Void> onShowLeaderboard;
 
@@ -86,6 +118,17 @@ public class LobbyController {
     public void setTotalPoints(int points) {
         this.myPoints = String.valueOf(points);
         updateHeaderUserInfo();
+        updateStatsDisplay();
+    }
+
+    public void setTotalWins(int wins) {
+        this.myWins = String.valueOf(wins);
+        updateStatsDisplay();
+    }
+
+    public void setStatus(String status) {
+        this.myStatus = status;
+        updateHeaderUserInfo();
     }
 
     public void setOnLogout(Consumer<Void> callback) {
@@ -100,24 +143,49 @@ public class LobbyController {
     private void initialize() {
         filteredLobby = new FilteredList<>(lobbyData, r -> true);
         lobbyTable.setItems(filteredLobby);
-        
+
         colUser.setCellValueFactory(c -> c.getValue().usernameProperty());
         colPoints.setCellValueFactory(c -> c.getValue().totalPointsProperty());
         colStatus.setCellValueFactory(c -> c.getValue().statusProperty());
+        colStatus.setCellFactory(col -> new TableCell<LobbyUserRow, String>() {
+            @Override
+            protected void updateItem(String status, boolean empty) {
+                super.updateItem(status, empty);
+                if (empty || status == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(status);
+                    if (status.equals("Online")) {
+                        setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
+                    } else if (status.equals("In-game")) {
+                        setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+                    } else {
+                        setStyle("");
+                    }
+                }
+            }
+        });
         colAction.setCellFactory(makeActionCellFactory());
-        
+
+        leaderboardTable.setItems(leaderboardData);
+        colRank.setCellValueFactory(c -> c.getValue().rankProperty());
+        colPlayer.setCellValueFactory(c -> c.getValue().usernameProperty());
+        colScore.setCellValueFactory(c -> c.getValue().totalPointsProperty());
+        colWins.setCellValueFactory(c -> c.getValue().totalWinsProperty());
+
         searchField.textProperty().addListener((obs, old, q) -> {
             String query = q == null ? "" : q.trim().toLowerCase();
             filteredLobby.setPredicate(row ->
                 query.isEmpty() || row.getUsername().toLowerCase().contains(query));
         });
-        
+
         System.out.println("✓ Lobby controller initialized with forest background!");
     }
 
     @FXML
     private void handleLogout() {
-        myStatus = "Rảnh";
+        myStatus = "Online";
         updateHeaderUserInfo();
         if (onLogout != null) {
             onLogout.accept(null);
@@ -289,7 +357,48 @@ public class LobbyController {
             String pts = String.valueOf(u.get("totalPoints"));
             String st = String.valueOf(u.get("status"));
             if (name != null && name.equals(username)) continue;
-            lobbyData.add(new LobbyUserRow(name, pts, st));
+            lobbyData.add(new LobbyUserRow(name, pts, formatStatus(st)));
+        }
+    }
+
+    private String formatStatus(String status) {
+        if (status == null) return "Online";
+        switch (status.toUpperCase()) {
+            case "IDLE":
+                return "Online";
+            case "IN_GAME":
+                return "In-game";
+            default:
+                return status;
+        }
+    }
+
+    public void updateLeaderboard(List<Map<String, Object>> entries) {
+        leaderboardData.clear();
+        for (int i = 0; i < entries.size(); i++) {
+            var entry = entries.get(i);
+            String rank = String.valueOf(i + 1);
+            String playerName = String.valueOf(entry.get("username"));
+            String totalPoints = String.valueOf(entry.get("totalPoints"));
+            String totalWins = String.valueOf(entry.get("totalWins"));
+            leaderboardData.add(new LeaderboardRow(rank, playerName, totalPoints, totalWins));
+            
+            if (playerName.equals(username)) {
+                this.myPoints = totalPoints;
+                this.myWins = totalWins;
+                int myRank = i + 1;
+                javafx.application.Platform.runLater(() -> {
+                    updateHeaderUserInfo();
+                    updateStatsDisplay();
+                    updateRankDisplay(myRank);
+                });
+            }
+        }
+    }
+
+    public void requestLeaderboardData() {
+        if (networkClient != null) {
+            networkClient.send(new Message(Protocol.LEADERBOARD, null));
         }
     }
 
@@ -478,19 +587,55 @@ public class LobbyController {
         }
     }
 
+    private void updateStatsDisplay() {
+        if (statsPointsLabel != null) {
+            statsPointsLabel.setText(myPoints);
+        }
+        if (statsWinsLabel != null) {
+            statsWinsLabel.setText(myWins);
+        }
+    }
+    
+    private void updateRankDisplay(int rank) {
+        if (rankPositionLabel != null) {
+            rankPositionLabel.setText("#" + rank);
+        }
+        
+        if (rankIconLabel != null && rankDescriptionLabel != null) {
+            String icon;
+            String description;
+            
+            if (rank == 1) {
+                icon = "🥇";
+                description = "Top 1 - Huyền thoại";
+            } else if (rank == 2) {
+                icon = "🥈";
+                description = "Top 2 - Cao thủ";
+            } else if (rank == 3) {
+                icon = "🥉";
+                description = "Top 3 - Tinh anh";
+            } else if (rank <= 10) {
+                icon = "💎";
+                description = "Top 10 - Kim cương";
+            } else if (rank <= 50) {
+                icon = "⭐";
+                description = "Top 50 - Vàng";
+            } else {
+                icon = "🎮";
+                description = "Vị trí: " + rank;
+            }
+            
+            rankIconLabel.setText(icon);
+            rankDescriptionLabel.setText(description);
+        }
+    }
+
     private Callback<TableColumn<LobbyUserRow, Void>, TableCell<LobbyUserRow, Void>> makeActionCellFactory() {
         return col -> new TableCell<>() {
-            private final Button viewBtn = new Button("Xem");
             private final Button inviteBtn = new Button("Mời");
-            private final HBox box = new HBox(6, viewBtn, inviteBtn);
+            private final HBox box = new HBox(6, inviteBtn);
             
             {
-                viewBtn.setOnAction(e -> {
-                    LobbyUserRow row = getTableView().getItems().get(getIndex());
-                    new Alert(Alert.AlertType.INFORMATION,
-                        "Người chơi: " + row.getUsername() + "\nĐiểm: " + row.getTotalPoints() + "\nTrạng thái: " + row.getStatus())
-                        .show();
-                });
                 inviteBtn.setOnAction(e -> {
                     LobbyUserRow row = getTableView().getItems().get(getIndex());
                     if (!row.getUsername().equals(username)) {

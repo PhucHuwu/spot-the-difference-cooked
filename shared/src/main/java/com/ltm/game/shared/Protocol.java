@@ -9,6 +9,7 @@ public final class Protocol {
     public static final String ERROR = "error";
 
     public static final String LOBBY_LIST = "lobby/list";
+    public static final String LOBBY_REQUEST = "lobby/request";
     public static final String INVITE_SEND = "invite/send";
     public static final String INVITE_RECEIVED = "invite/received";
     public static final String INVITE_RESPONSE = "invite/response";

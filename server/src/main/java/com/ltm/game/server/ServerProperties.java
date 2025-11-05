@@ -11,7 +11,7 @@ public class ServerProperties {
                 props.load(in);
             }
         } catch (Exception e) {
-            System.err.println("Failed to load server-config.properties: " + e.getMessage());
+            Logger.error("Failed to load server-config.properties", e);
         }
         
         String dbUrl = System.getenv("DB_URL");
