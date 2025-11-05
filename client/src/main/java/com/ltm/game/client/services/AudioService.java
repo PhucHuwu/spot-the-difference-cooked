@@ -9,6 +9,8 @@ public class AudioService {
     private AudioClip wrongSound;
     private AudioClip celebrationSound;
     private AudioClip countdownSound;
+    private AudioClip matchFoundSound;
+    private AudioClip matchStartSound;
     
     private boolean isMuted = false;
     private double savedBackgroundVolume = 0.3;
@@ -145,6 +147,34 @@ public class AudioService {
     public void stopCountdownSound() {
         if (countdownSound != null) {
             countdownSound.stop();
+        }
+    }
+
+    public void playMatchFoundSound() {
+        if (isMuted) {
+            return;
+        }
+        try {
+            String soundPath = getClass().getResource("/sounds/sound_khi an tim tran.mp3").toExternalForm();
+            matchFoundSound = new AudioClip(soundPath);
+            matchFoundSound.setVolume(0.7);
+            matchFoundSound.play();
+        } catch (Exception e) {
+            System.err.println("Error playing match found sound: " + e.getMessage());
+        }
+    }
+
+    public void playMatchStartSound() {
+        if (isMuted) {
+            return;
+        }
+        try {
+            String soundPath = getClass().getResource("/sounds/sound in matches.mp3").toExternalForm();
+            matchStartSound = new AudioClip(soundPath);
+            matchStartSound.setVolume(0.8);
+            matchStartSound.play();
+        } catch (Exception e) {
+            System.err.println("Error playing match start sound: " + e.getMessage());
         }
     }
 

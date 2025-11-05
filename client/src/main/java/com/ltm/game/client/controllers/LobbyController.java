@@ -557,6 +557,11 @@ public class LobbyController {
             queueDialog = null;
         }
 
+        // Play match found sound
+        if (audioService != null) {
+            audioService.playMatchFoundSound();
+        }
+
         javafx.application.Platform.runLater(() -> {
             showMatchFoundDialog(opponent);
         });
@@ -657,6 +662,10 @@ public class LobbyController {
 
     public void onMatchReady() {
         javafx.application.Platform.runLater(() -> {
+            // Play match-start sound when both clients are entering the match
+            if (audioService != null) {
+                audioService.playMatchStartSound();
+            }
             if (matchWaitingController != null) {
                 matchWaitingController.onMatchReady();
             }
