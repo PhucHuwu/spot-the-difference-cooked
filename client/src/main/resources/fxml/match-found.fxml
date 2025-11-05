@@ -32,8 +32,8 @@
 
         <!-- Header -->
         <VBox alignment="CENTER" spacing="8">
-            <Label text="MATCH FOUND" styleClass="match-found-title"/>
-            <Label text="Ready to compete?" styleClass="match-subtitle"/>
+            <Label text="ĐÃ TÌM THẤY TRẬN ĐẤU" styleClass="match-found-title"/>
+            <Label text="Sẵn sàng chiến đấu?" styleClass="match-subtitle"/>
         </VBox>
 
         <!-- Animated Rings Container -->
@@ -51,7 +51,7 @@
             <VBox alignment="CENTER" spacing="5">
                 <!-- Countdown Timer -->
                 <Label fx:id="countdownLabel" text="10" styleClass="countdown-timer"/>
-                <Label text="SECONDS" styleClass="countdown-subtitle"/>
+                <Label text="GIÂY" styleClass="countdown-subtitle"/>
             </VBox>
         </StackPane>
 
@@ -59,7 +59,7 @@
         <HBox alignment="CENTER" spacing="40" styleClass="players-info-container">
             <!-- Player 1 -->
             <VBox alignment="CENTER" spacing="8" styleClass="player-info">
-                <Label fx:id="player1Label" text="YOU" styleClass="player-name player-you"/>
+                <Label fx:id="player1Label" text="BẠN" styleClass="player-name player-you"/>
                 <Label text="●" styleClass="player-status player-status-pending"/>
             </VBox>
 
@@ -68,19 +68,19 @@
 
             <!-- Player 2 -->
             <VBox alignment="CENTER" spacing="8" styleClass="player-info">
-                <Label fx:id="player2Label" text="OPPONENT" styleClass="player-name player-opponent"/>
+                <Label fx:id="player2Label" text="ĐỐI THỦ" styleClass="player-name player-opponent"/>
                 <Label text="●" styleClass="player-status player-status-pending"/>
             </VBox>
         </HBox>
 
         <!-- Action Buttons -->
         <HBox alignment="CENTER" spacing="20" styleClass="buttons-container">
-            <Button fx:id="acceptButton" text="✓ ACCEPT" styleClass="accept-button" onAction="#handleAccept"/>
-            <Button fx:id="declineButton" text="✗ DECLINE" styleClass="decline-button" onAction="#handleDecline"/>
+            <Button fx:id="acceptButton" text="✓ CHẤP NHẬN" styleClass="accept-button" onAction="#handleAccept"/>
+            <Button fx:id="declineButton" text="✗ TỪ CHỐI" styleClass="decline-button" onAction="#handleDecline"/>
         </HBox>
 
         <!-- Warning Text -->
-        <Label fx:id="warningLabel" text="Declining may result in temporary queue restriction"
+        <Label fx:id="warningLabel" text="Từ chối có thể dẫn đến hạn chế tìm trận tạm thời"
                styleClass="warning-text" managed="false" visible="false"/>
 
         <!-- Bottom Decoration -->

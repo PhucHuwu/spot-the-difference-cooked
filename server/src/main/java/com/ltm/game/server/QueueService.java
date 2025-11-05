@@ -187,14 +187,14 @@ public class QueueService {
                         s2.send(new Message(Protocol.MATCH_READY, Map.of()).toJson());
                     }
 
-                    // Start game after 3 seconds delay (like League of Legends)
+                    // Start game after 10 seconds delay (configurable wait time)
                     new Thread(() -> {
                         try {
-                            Thread.sleep(3000);
+                            Thread.sleep(10000);
 
-                            // Double-check match still exists (not declined during 3s delay)
+                            // Double-check match still exists (not declined during 10s delay)
                             if (!pendingMatches.containsKey(matchId)) {
-                                Logger.info("[MATCH] Match " + matchId + " was cancelled during 3s delay. Not starting game.");
+                                Logger.info("[MATCH] Match " + matchId + " was cancelled during 10s delay. Not starting game.");
                                 return;
                             }
 

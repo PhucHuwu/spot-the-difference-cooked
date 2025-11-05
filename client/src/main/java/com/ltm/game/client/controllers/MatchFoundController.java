@@ -66,7 +66,7 @@ public class MatchFoundController {
 
     public void setOpponentName(String name) {
         this.opponentName = name;
-        player1Label.setText(username != null ? username : "YOU");
+        player1Label.setText(username != null ? username : "BẠN");
         player2Label.setText(name);
     }
 
@@ -209,7 +209,7 @@ public class MatchFoundController {
 
     private void autoDecline() {
         Platform.runLater(() -> {
-            countdownLabel.setText("TIME OUT");
+            countdownLabel.setText("HẾT GIỜ");
             countdownLabel.setStyle("-fx-text-fill: #FF4444;");
 
             // Auto decline and close after 1 second
@@ -246,23 +246,23 @@ public class MatchFoundController {
 
             // Update labels with message
             if ("timeout".equals(reason)) {
-                player1Label.setText("⏱ MATCH CANCELLED");
-                player2Label.setText("TIMEOUT");
+                player1Label.setText("⏱ TRẬN ĐẤU BỊ HỦY");
+                player2Label.setText("HẾT GIỜ");
                 player1Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
                 player2Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
             } else if ("disconnect".equals(reason)) {
-                player1Label.setText("🔌 MATCH CANCELLED");
-                player2Label.setText((decliner != null ? decliner.toUpperCase() : "OPPONENT") + " DISCONNECTED");
+                player1Label.setText("🔌 TRẬN ĐẤU BỊ HỦY");
+                player2Label.setText((decliner != null ? decliner.toUpperCase() : "ĐỐI THỦ") + " MẤT KẾT NỐI");
                 player1Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
                 player2Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
             } else if (decliner != null && !decliner.isEmpty() && !"null".equals(decliner)) {
-                player1Label.setText("❌ MATCH CANCELLED");
-                player2Label.setText(decliner.toUpperCase() + " DECLINED");
+                player1Label.setText("❌ TRẬN ĐẤU BỊ HỦY");
+                player2Label.setText(decliner.toUpperCase() + " TỪ CHỐI");
                 player1Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
                 player2Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
             } else {
-                player1Label.setText("❌ MATCH");
-                player2Label.setText("CANCELLED");
+                player1Label.setText("❌ TRẬN ĐẤU");
+                player2Label.setText("BỊ HỦY");
                 player1Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
                 player2Label.setStyle("-fx-text-fill: #FF6B6B; -fx-font-size: 18px; -fx-font-weight: bold;");
             }
@@ -283,8 +283,8 @@ public class MatchFoundController {
         Platform.runLater(() -> {
             cleanup();
 
-            // Show 3-2-1-GO countdown like League of Legends
-            final int[] countdownValue = {3};
+            // Show 10-9-8-7-6-5-4-3-2-1-BẮT ĐẦU countdown
+            final int[] countdownValue = {10};
 
             Timeline goCountdown = new Timeline(
                 new KeyFrame(Duration.seconds(1), e -> {
@@ -302,9 +302,9 @@ public class MatchFoundController {
 
                         countdownValue[0]--;
                     } else {
-                        // Show GO!
-                        countdownLabel.setText("GO!");
-                        countdownLabel.setStyle("-fx-text-fill: #00FF88; -fx-font-size: 82px; -fx-font-weight: bold;");
+                        // Show BẮT ĐẦU!
+                        countdownLabel.setText("BẮT ĐẦU!");
+                        countdownLabel.setStyle("-fx-text-fill: #00FF88; -fx-font-size: 72px; -fx-font-weight: bold;");
 
                         ScaleTransition goAnimation = new ScaleTransition(Duration.millis(500), countdownLabel);
                         goAnimation.setFromX(2.0);
@@ -313,7 +313,7 @@ public class MatchFoundController {
                         goAnimation.setToY(1.2);
                         goAnimation.play();
 
-                        // Close after GO!
+                        // Close after BẮT ĐẦU!
                         PauseTransition pause = new PauseTransition(Duration.millis(500));
                         pause.setOnFinished(evt -> {
                             closeDialog();
@@ -322,7 +322,7 @@ public class MatchFoundController {
                     }
                 })
             );
-            goCountdown.setCycleCount(4); // 3, 2, 1, GO
+            goCountdown.setCycleCount(11); // 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, BẮT ĐẦU
             goCountdown.play();
         });
     }

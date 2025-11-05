@@ -1,0 +1,13 @@
+# ============================================
+# CLIENT CONFIGURATION - REMOTE (Other Machine)
+# ============================================
+# Dùng cho client chạy ở máy khác
+# File: client-config.properties
+
+# HƯỚNG DẪN:
+# 1. Copy file này thành client-config.properties
+# 2. Thay <SERVER_IP> bằng địa chỉ IP thực tế của máy server
+#    Ví dụ: server.host=192.168.30.118
+
+server.host=<SERVER_IP>
+server.port=5050
