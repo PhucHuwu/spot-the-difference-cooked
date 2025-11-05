@@ -57,9 +57,6 @@
                                style="-fx-font-size: 14px; 
                                       -fx-font-weight: bold; 
                                       -fx-text-fill: #F0E6D2;"/>
-                        <Label text="Level 30 • Online"
-                               style="-fx-font-size: 11px; 
-                                      -fx-text-fill: #A09B8C;"/>
                     </VBox>
                 </HBox>
                 

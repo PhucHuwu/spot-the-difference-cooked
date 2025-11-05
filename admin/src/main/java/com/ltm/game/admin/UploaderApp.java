@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -31,12 +32,13 @@ public class UploaderApp extends Application {
     private final TextField nameField = new TextField();
     private final Spinner<Integer> radiusSpinner = new Spinner<>(5, 100, 40); // Increased default to 40, max to 100
     private final Label status = new Label();
+    private Label pointsCountLabel; // Track points count label
 
     public static void main(String[] args) { launch(args); }
 
     @Override
     public void start(Stage stage) {
-        stage.setTitle("🎨 Admin - Upload Ảnh Tìm Điểm Khác Biệt");
+        stage.setTitle("⚔️ ADMIN PANEL - Spot The Difference");
         
         // Legacy preview ImageViews (no longer shown; we now draw directly on the Canvas)
         var leftView = new ImageView();
@@ -44,25 +46,28 @@ public class UploaderApp extends Application {
         leftView.setFitWidth(400); leftView.setFitHeight(400); leftView.setPreserveRatio(true);
         rightView.setFitWidth(400); rightView.setFitHeight(400); rightView.setPreserveRatio(true);
 
-        // Styled buttons
-        Button loadLeft = createStyledButton("📂 Chọn ảnh trái", "#3498db");
-        Button loadRight = createStyledButton("📂 Chọn ảnh phải", "#9b59b6");
-        Button clearPts = createStyledButton("🗑 Xóa điểm", "#e74c3c");
-        Button saveBtn = createStyledButton("💾 Lưu vào DB", "#27ae60");
+        // LoL-styled buttons
+        Button loadLeft = createLoLButton("📂  CHỌN ẢNH TRÁI", false);
+        Button loadRight = createLoLButton("📂  CHỌN ẢNH PHẢI", false);
+        Button clearPts = createLoLButton("🗑️  XÓA TẤT CẢ", false);
+        Button saveBtn = createLoLButton("💾  LƯU", true);
 
         nameField.setPromptText("Nhập tên bộ ảnh...");
         nameField.setStyle(
             "-fx-font-size: 14px;" +
-            "-fx-padding: 10px;" +
+            "-fx-padding: 12px 15px;" +
+            "-fx-background-color: rgba(20, 30, 50, 0.7);" +
+            "-fx-text-fill: #F0E6D2;" +
+            "-fx-prompt-text-fill: #8B7355;" +
             "-fx-background-radius: 8px;" +
-            "-fx-border-color: #3498db;" +
-            "-fx-border-width: 2px;" +
+            "-fx-border-color: rgba(212, 175, 55, 0.5);" +
+            "-fx-border-width: 1.5px;" +
             "-fx-border-radius: 8px;"
         );
 
         loadLeft.setOnAction(e -> chooseImage(stage, leftView, true));
         loadRight.setOnAction(e -> chooseImage(stage, rightView, false));
-        clearPts.setOnAction(e -> { points.clear(); redraw(leftView, rightView); });
+        clearPts.setOnAction(e -> { points.clear(); redraw(leftView, rightView); updatePointsCount(); });
         saveBtn.setOnAction(e -> saveToDb());
 
         overlay.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -83,122 +88,178 @@ public class UploaderApp extends Application {
             int rImg = (int)Math.round(rDisp * (leftImg.getWidth() / 400.0));
             points.add(new ImageSetRepository.DPoint(ix, iy, rImg));
             redraw(leftView, rightView);
+            updatePointsCount();
         });
 
         BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #ecf0f1;");
+        root.setStyle(
+            "-fx-background-color: linear-gradient(to bottom, #0A1428, #091428);"
+        );
         
-        // Header with title and instructions
-        VBox header = new VBox(10);
-        header.setPadding(new Insets(20, 20, 15, 20));
+        // Elegant LoL-styled Header with hextech pattern
+        VBox header = new VBox(12);
+        header.setPadding(new Insets(25, 30, 20, 30));
         header.setStyle(
-            "-fx-background-color: linear-gradient(to right, #3498db, #9b59b6);" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.5, 0, 2);"
+            "-fx-background-color: linear-gradient(to right, rgba(10, 20, 40, 0.95), rgba(15, 25, 45, 0.98));" +
+            "-fx-border-color: linear-gradient(to right, #C89B3C, #785A28);" +
+            "-fx-border-width: 0 0 3 0;" +
+            "-fx-effect: dropshadow(gaussian, rgba(200, 155, 60, 0.3), 15, 0.4, 0, 3);"
         );
         
-        Label titleLabel = new Label("🎨 QUẢN TRỊ - UPLOAD BỘ ẢNH");
+        Label titleLabel = new Label("⚔️  BẢNG ĐIỀU KHIỂN QUẢN TRỊ  ⚔️");
         titleLabel.setStyle(
-            "-fx-font-size: 24px;" +
+            "-fx-font-size: 32px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0.7, 0, 2);"
+            "-fx-text-fill: #D4AF37;" +
+            "-fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 10, 0.8, 0, 2);"
         );
         
-        Label tip = new Label("💡 Hướng dẫn: Click vào vùng ảnh để đánh dấu điểm khác biệt. Điều chỉnh bán kính vòng tròn bên phải.");
+        Label subtitle = new Label("HỆ THỐNG QUẢN LÝ BỘ ẢNH");
+        subtitle.setStyle(
+            "-fx-font-size: 11px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: #8B7355;" +
+            "-fx-letter-spacing: 3px;"
+        );
+        
+        Label tip = new Label("💡 Click vào vùng ảnh để đánh dấu điểm khác biệt • Điều chỉnh bán kính bên phải");
         tip.setStyle(
             "-fx-font-size: 13px;" +
-            "-fx-text-fill: rgba(255,255,255,0.95);" +
+            "-fx-text-fill: #C8AA6E;" +
             "-fx-font-style: italic;"
         );
         tip.setWrapText(true);
         
-        header.getChildren().addAll(titleLabel, tip);
+        header.getChildren().addAll(titleLabel, subtitle, tip);
         root.setTop(header);
 
-        // Right panel - tools
-        VBox tools = new VBox(15);
-        tools.setPadding(new Insets(20));
+        // Right panel - Elegant LoL styled control panel
+        VBox tools = new VBox(18);
+        tools.setPadding(new Insets(25, 20, 25, 20));
         tools.setStyle(
-            "-fx-background-color: white;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.5, -2, 0);"
+            "-fx-background-color: linear-gradient(to bottom, rgba(15, 25, 45, 0.92), rgba(10, 20, 40, 0.95));" +
+            "-fx-border-color: rgba(212, 175, 55, 0.25);" +
+            "-fx-border-width: 0 0 0 2;" +
+            "-fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0.3, 0, 0);"
         );
-        tools.setMinWidth(280);
+        tools.setMinWidth(320);
         
-        // Name field section
-        Label nameLabel = new Label("📝 Tên bộ ảnh:");
+        // Name field section with icon
+        HBox nameHeaderBox = new HBox(8);
+        nameHeaderBox.setAlignment(Pos.CENTER_LEFT);
+        Label nameIcon = new Label("📋");
+        nameIcon.setStyle("-fx-font-size: 16px;");
+        Label nameLabel = new Label("THÔNG TIN BỘ ẢNH");
         nameLabel.setStyle(
-            "-fx-font-size: 14px;" +
+            "-fx-font-size: 12px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: #2c3e50;"
+            "-fx-text-fill: #D4AF37;" +
+            "-fx-letter-spacing: 2px;"
         );
+        nameHeaderBox.getChildren().addAll(nameIcon, nameLabel);
         
-        // Buttons section
-        Label uploadLabel = new Label("📤 Tải ảnh lên:");
+        // Buttons section with icon
+        HBox uploadHeaderBox = new HBox(8);
+        uploadHeaderBox.setAlignment(Pos.CENTER_LEFT);
+        Label uploadIcon = new Label("📤");
+        uploadIcon.setStyle("-fx-font-size: 16px;");
+        Label uploadLabel = new Label("TẢI ẢNH LÊN");
         uploadLabel.setStyle(
-            "-fx-font-size: 14px;" +
+            "-fx-font-size: 12px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: #2c3e50;"
+            "-fx-text-fill: #D4AF37;" +
+            "-fx-letter-spacing: 2px;"
         );
-        VBox uploadBox = new VBox(8, loadLeft, loadRight);
+        uploadHeaderBox.getChildren().addAll(uploadIcon, uploadLabel);
+        VBox uploadBox = new VBox(10, loadLeft, loadRight);
         
-        // Radius control section
-        Label radiusLabel = new Label("⭕ Bán kính vòng tròn:");
+        // Radius control section with icon
+        HBox radiusHeaderBox = new HBox(8);
+        radiusHeaderBox.setAlignment(Pos.CENTER_LEFT);
+        Label radiusIcon = new Label("⚙️");
+        radiusIcon.setStyle("-fx-font-size: 16px;");
+        Label radiusLabel = new Label("CÀI ĐẶT ĐÁNH DẤU");
         radiusLabel.setStyle(
-            "-fx-font-size: 14px;" +
+            "-fx-font-size: 12px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: #2c3e50;"
+            "-fx-text-fill: #D4AF37;" +
+            "-fx-letter-spacing: 2px;"
         );
+        radiusHeaderBox.getChildren().addAll(radiusIcon, radiusLabel);
         
-        radiusSpinner.setPrefWidth(120);
+        radiusSpinner.setPrefWidth(140);
         radiusSpinner.setStyle(
-            "-fx-font-size: 13px;"
+            "-fx-font-size: 14px;" +
+            "-fx-background-color: rgba(20, 30, 50, 0.8);" +
+            "-fx-text-fill: #F0E6D2;" +
+            "-fx-border-color: rgba(212, 175, 55, 0.5);" +
+            "-fx-border-radius: 8px;" +
+            "-fx-background-radius: 8px;" +
+            "-fx-padding: 8px;"
         );
         
-        HBox radiusBox = new HBox(10, radiusSpinner, clearPts);
+        clearPts.setMaxWidth(Region.USE_PREF_SIZE);
+        clearPts.setPrefWidth(140);
+        
+        HBox radiusBox = new HBox(12, radiusSpinner, clearPts);
         radiusBox.setAlignment(Pos.CENTER_LEFT);
         
-        // Points count label
-        Label pointsCountLabel = new Label("📍 Số điểm đã đánh dấu: 0");
+        // Points count label - more prominent
+        pointsCountLabel = new Label("📍 ĐIỂM ĐÃ ĐÁNH DẤU: 0");
         pointsCountLabel.setStyle(
-            "-fx-font-size: 13px;" +
-            "-fx-text-fill: #7f8c8d;" +
-            "-fx-padding: 8px;" +
-            "-fx-background-color: #ecf0f1;" +
-            "-fx-background-radius: 6px;"
+            "-fx-font-size: 14px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: #F0E6D2;" +
+            "-fx-padding: 15px 18px;" +
+            "-fx-background-color: linear-gradient(to right, rgba(212, 175, 55, 0.15), rgba(200, 155, 60, 0.12));" +
+            "-fx-background-radius: 8px;" +
+            "-fx-border-color: rgba(212, 175, 55, 0.4);" +
+            "-fx-border-width: 2px;" +
+            "-fx-border-radius: 8px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.3), 8, 0.5, 0, 2);"
         );
         
-        // Update points count on redraw
-        radiusSpinner.valueProperty().addListener((obs, old, val) -> {
-            pointsCountLabel.setText("📍 Số điểm đã đánh dấu: " + points.size());
-        });
         
         Separator sep = new Separator();
+        sep.setStyle(
+            "-fx-background-color: rgba(212, 175, 55, 0.3);" +
+            "-fx-padding: 5px 0;"
+        );
         
-        // Status label
+        // Status label - cleaner design
         status.setStyle(
             "-fx-font-size: 12px;" +
-            "-fx-text-fill: #34495e;" +
-            "-fx-padding: 10px;" +
-            "-fx-background-color: #f8f9fa;" +
-            "-fx-background-radius: 6px;" +
-            "-fx-border-color: #dee2e6;" +
+            "-fx-text-fill: #C8AA6E;" +
+            "-fx-padding: 15px;" +
+            "-fx-background-color: rgba(20, 30, 50, 0.6);" +
+            "-fx-background-radius: 8px;" +
+            "-fx-border-color: rgba(212, 175, 55, 0.25);" +
             "-fx-border-width: 1px;" +
-            "-fx-border-radius: 6px;"
+            "-fx-border-radius: 8px;"
         );
         status.setWrapText(true);
-        status.setPrefHeight(80);
+        status.setPrefHeight(110);
+        status.setVisible(false); // Initially hidden
+        status.setManaged(false); // Don't take up space when hidden
+        
+        // Listener to show/hide status based on text
+        status.textProperty().addListener((obs, oldText, newText) -> {
+            boolean hasText = newText != null && !newText.trim().isEmpty();
+            status.setVisible(hasText);
+            status.setManaged(hasText);
+        });
         
         tools.getChildren().addAll(
-            nameLabel, nameField,
-            uploadLabel, uploadBox,
-            radiusLabel, radiusBox,
+            nameHeaderBox, nameField,
+            uploadHeaderBox, uploadBox,
+            radiusHeaderBox, radiusBox,
             pointsCountLabel,
             sep,
             saveBtn,
             status
         );
         
-        root.setRight(tools);
+        root.setLeft(tools);
         root.setCenter(overlay);
 
         Scene scene = new Scene(root, 1200, 560);
@@ -206,26 +267,99 @@ public class UploaderApp extends Application {
         stage.show();
     }
     
-    private Button createStyledButton(String text, String color) {
+    private Button createLoLButton(String text, boolean isPrimary) {
         Button btn = new Button(text);
         btn.setMaxWidth(Double.MAX_VALUE);
-        btn.setStyle(
-            "-fx-font-size: 13px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-padding: 12px 20px;" +
-            "-fx-background-color: " + color + ";" +
-            "-fx-text-fill: white;" +
-            "-fx-background-radius: 8px;" +
-            "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.5, 0, 2);"
-        );
         
-        btn.setOnMouseEntered(e -> btn.setStyle(
-            btn.getStyle() + "-fx-scale-x: 1.02; -fx-scale-y: 1.02;"
-        ));
-        btn.setOnMouseExited(e -> btn.setStyle(
-            btn.getStyle().replace("-fx-scale-x: 1.02; -fx-scale-y: 1.02;", "")
-        ));
+        if (isPrimary) {
+            btn.setStyle(
+                "-fx-font-size: 14px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-padding: 14px 24px;" +
+                "-fx-background-color: linear-gradient(to bottom, #D4AF37, #C89B3C 50%, #785A28);" +
+                "-fx-text-fill: #0A1428;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-cursor: hand;" +
+                "-fx-border-color: rgba(212, 175, 55, 0.6);" +
+                "-fx-border-width: 1.5px;" +
+                "-fx-border-radius: 8px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.6), 12, 0.7, 0, 3);"
+            );
+        } else {
+            btn.setStyle(
+                "-fx-font-size: 13px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-padding: 11px 20px;" +
+                "-fx-background-color: rgba(20, 30, 50, 0.7);" +
+                "-fx-text-fill: #D4AF37;" +
+                "-fx-background-radius: 8px;" +
+                "-fx-border-color: rgba(212, 175, 55, 0.4);" +
+                "-fx-border-radius: 8px;" +
+                "-fx-border-width: 1.5px;" +
+                "-fx-cursor: hand;"
+            );
+        }
+        
+        btn.setOnMouseEntered(e -> {
+            if (isPrimary) {
+                btn.setStyle(
+                    "-fx-font-size: 14px;" +
+                    "-fx-font-weight: bold;" +
+                    "-fx-padding: 14px 24px;" +
+                    "-fx-background-color: linear-gradient(to bottom, #E5C158, #D4AF37 50%, #8B6F3C);" +
+                    "-fx-text-fill: #0A1428;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-cursor: hand;" +
+                    "-fx-border-color: rgba(229, 193, 88, 0.8);" +
+                    "-fx-border-width: 1.5px;" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(229, 193, 88, 0.8), 15, 0.8, 0, 3);"
+                );
+            } else {
+                btn.setStyle(
+                    "-fx-font-size: 13px;" +
+                    "-fx-font-weight: bold;" +
+                    "-fx-padding: 11px 20px;" +
+                    "-fx-background-color: rgba(30, 40, 60, 0.85);" +
+                    "-fx-text-fill: #E5C158;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-border-color: rgba(229, 193, 88, 0.6);" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-border-width: 1.5px;" +
+                    "-fx-cursor: hand;"
+                );
+            }
+        });
+        btn.setOnMouseExited(e -> {
+            if (isPrimary) {
+                btn.setStyle(
+                    "-fx-font-size: 14px;" +
+                    "-fx-font-weight: bold;" +
+                    "-fx-padding: 14px 24px;" +
+                    "-fx-background-color: linear-gradient(to bottom, #D4AF37, #C89B3C 50%, #785A28);" +
+                    "-fx-text-fill: #0A1428;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-cursor: hand;" +
+                    "-fx-border-color: rgba(212, 175, 55, 0.6);" +
+                    "-fx-border-width: 1.5px;" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.6), 12, 0.7, 0, 3);"
+                );
+            } else {
+                btn.setStyle(
+                    "-fx-font-size: 13px;" +
+                    "-fx-font-weight: bold;" +
+                    "-fx-padding: 11px 20px;" +
+                    "-fx-background-color: rgba(20, 30, 50, 0.7);" +
+                    "-fx-text-fill: #D4AF37;" +
+                    "-fx-background-radius: 8px;" +
+                    "-fx-border-color: rgba(212, 175, 55, 0.4);" +
+                    "-fx-border-radius: 8px;" +
+                    "-fx-border-width: 1.5px;" +
+                    "-fx-cursor: hand;"
+                );
+            }
+        });
         
         return btn;
     }
@@ -250,57 +384,116 @@ public class UploaderApp extends Application {
     private void redraw(ImageView leftView, ImageView rightView) {
         GraphicsContext g = overlay.getGraphicsContext2D();
         g.clearRect(0,0,overlay.getWidth(), overlay.getHeight());
-        // Draw background
-        g.setFill(Color.web("#f7f7f7"));
+        // Draw elegant gradient background
+        g.setFill(Color.web("#0A1428"));
         g.fillRect(0,0,overlay.getWidth(), overlay.getHeight());
-        // Draw previews (images first so guides and points are on top)
+        
+        // Draw subtle hextech pattern lines
+        g.setStroke(Color.web("#1A2538", 0.3));
+        g.setLineWidth(1);
+        for (int i = 0; i < 450; i += 30) {
+            g.strokeLine(0, i, 900, i);
+        }
+        
+        // Draw previews with elegant frames
         if (leftImg != null) {
-            g.drawImage(leftImg, 10, 10, 400, 400);
+            g.drawImage(leftImg, 15, 15, 390, 390);
         } else {
-            drawPlaceholder(g, 10, 10, 400, 400, "Chọn ảnh trái");
+            drawPlaceholder(g, 15, 15, 390, 390, "⬅️  ẢNH TRÁI");
         }
         if (rightImg != null) {
-            g.drawImage(rightImg, 440, 10, 400, 400);
+            g.drawImage(rightImg, 445, 15, 390, 390);
         } else {
-            drawPlaceholder(g, 440, 10, 400, 400, "Chọn ảnh phải");
+            drawPlaceholder(g, 445, 15, 390, 390, "➡️  ẢNH PHẢI");
         }
-        // Boxes
-        g.setStroke(Color.GRAY);
-        g.strokeRect(10, 10, 400, 400);
-        g.strokeRect(440,10, 400, 400);
-        // Filenames + dims footer
-        g.setFill(Color.color(0,0,0,0.6));
-        g.fillRect(10, 410, 400, 24);
-        g.fillRect(440, 410, 400, 24);
-        g.setFill(Color.WHITE);
+        
+        // Elegant LoL-styled frames with double border
+        g.setStroke(Color.web("#D4AF37"));
+        g.setLineWidth(3);
+        g.strokeRect(15, 15, 390, 390);
+        g.strokeRect(445, 15, 390, 390);
+        
+        // Inner glow effect
+        g.setStroke(Color.web("#785A28", 0.4));
+        g.setLineWidth(1);
+        g.strokeRect(13, 13, 394, 394);
+        g.strokeRect(443, 13, 394, 394);
+        
+        // Elegant footer with gradient
+        g.setFill(Color.web("#0F1F35", 0.95));
+        g.fillRect(15, 405, 390, 30);
+        g.fillRect(445, 405, 390, 30);
+        
+        // Footer border
+        g.setStroke(Color.web("#D4AF37", 0.5));
+        g.setLineWidth(1);
+        g.strokeLine(15, 405, 405, 405);
+        g.strokeLine(445, 405, 835, 405);
+        
+        g.setFill(Color.web("#D4AF37"));
         String leftMeta = (leftFile!=null? leftFile.getName(): "");
         String rightMeta = (rightFile!=null? rightFile.getName(): "");
-        if (leftImg != null) leftMeta += String.format("  (%dx%d)", (int)leftImg.getWidth(), (int)leftImg.getHeight());
-        if (rightImg != null) rightMeta += String.format("  (%dx%d)", (int)rightImg.getWidth(), (int)rightImg.getHeight());
-        g.fillText(leftMeta.isEmpty()? "": leftMeta, 16, 426);
-        g.fillText(rightMeta.isEmpty()? "": rightMeta, 446, 426);
-        g.setStroke(Color.RED);
+        if (leftImg != null) leftMeta += String.format("  [%dx%d]", (int)leftImg.getWidth(), (int)leftImg.getHeight());
+        if (rightImg != null) rightMeta += String.format("  [%dx%d]", (int)rightImg.getWidth(), (int)rightImg.getHeight());
+        g.fillText(leftMeta.isEmpty()? "": leftMeta, 22, 425);
+        g.fillText(rightMeta.isEmpty()? "": rightMeta, 452, 425);
+        
+        // Draw difference points with glowing effect
         if (leftImg != null) {
             for (var p : points) {
-                // Convert image-space coordinates to preview space (400x400)
-                double dx = (p.x / leftImg.getWidth()) * 400.0;
-                double dy = (p.y / leftImg.getHeight()) * 400.0;
-                double rr = p.radius * (400.0 / leftImg.getWidth());
-                g.strokeOval(10 + dx - rr, 10 + dy - rr, rr*2, rr*2);
-                g.strokeOval(440 + dx - rr, 10 + dy - rr, rr*2, rr*2);
+                // Convert image-space coordinates to preview space (390x390)
+                double dx = (p.x / leftImg.getWidth()) * 390.0;
+                double dy = (p.y / leftImg.getHeight()) * 390.0;
+                double rr = p.radius * (390.0 / leftImg.getWidth());
+                
+                // Outer glow
+                g.setStroke(Color.web("#D4AF37", 0.3));
+                g.setLineWidth(6);
+                g.strokeOval(15 + dx - rr, 15 + dy - rr, rr*2, rr*2);
+                g.strokeOval(445 + dx - rr, 15 + dy - rr, rr*2, rr*2);
+                
+                // Main circle
+                g.setStroke(Color.web("#D4AF37"));
+                g.setLineWidth(3);
+                g.strokeOval(15 + dx - rr, 15 + dy - rr, rr*2, rr*2);
+                g.strokeOval(445 + dx - rr, 15 + dy - rr, rr*2, rr*2);
             }
         }
     }
 
     private void drawPlaceholder(GraphicsContext g, double x, double y, double w, double h, String text) {
-        g.setFill(Color.web("#ffffff"));
+        // Elegant dark gradient background
+        g.setFill(Color.web("#0F1F35"));
         g.fillRect(x, y, w, h);
-        g.setStroke(Color.web("#cccccc"));
-        g.setLineDashes(6);
-        g.strokeRect(x+2, y+2, w-4, h-4);
+        
+        // Subtle inner shadow effect
+        g.setFill(Color.web("#050A15", 0.3));
+        g.fillRect(x, y, w, 50);
+        
+        // Elegant dashed border
+        g.setStroke(Color.web("#785A28", 0.8));
+        g.setLineWidth(3);
+        g.setLineDashes(15, 10);
+        g.strokeRect(x+8, y+8, w-16, h-16);
         g.setLineDashes(0);
-        g.setFill(Color.web("#888"));
-        g.fillText(text, x + 12, y + h/2);
+        
+        // Center icon - large emoji
+        g.setFont(javafx.scene.text.Font.font("Segoe UI Emoji", 48));
+        g.setFill(Color.web("#8B7355", 0.5));
+        String icon = text.contains("TRÁI") ? "📷" : "📷";
+        g.fillText(icon, x + w/2 - 24, y + h/2 - 20);
+        
+        // Center text with better visibility
+        g.setFont(javafx.scene.text.Font.font("Segoe UI", javafx.scene.text.FontWeight.BOLD, 18));
+        g.setFill(Color.web("#D4AF37", 0.7));
+        double textWidth = text.length() * 10;
+        g.fillText(text, x + w/2 - textWidth/2, y + h/2 + 40);
+        
+        // Helper text
+        g.setFont(javafx.scene.text.Font.font("Segoe UI", 12));
+        g.setFill(Color.web("#8B7355", 0.6));
+        String hint = "Click nút bên dưới để chọn ảnh";
+        g.fillText(hint, x + w/2 - 110, y + h/2 + 70);
     }
 
     private void saveToDb() {
@@ -364,9 +557,16 @@ public class UploaderApp extends Application {
             status.setText("Đã lưu bộ ảnh #"+setId+" ("+leftDst.getAbsolutePath()+") với "+points.size()+" điểm");
             points.clear();
             redraw(null, null);
+            updatePointsCount();
         } catch (Exception e) {
             status.setText("Lỗi: "+e.getClass().getSimpleName()+" - "+e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void updatePointsCount() {
+        if (pointsCountLabel != null) {
+            pointsCountLabel.setText("📍 ĐIỂM ĐÃ ĐÁNH DẤU: " + points.size());
         }
     }
 
