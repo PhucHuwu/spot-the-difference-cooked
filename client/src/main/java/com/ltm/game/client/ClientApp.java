@@ -24,6 +24,7 @@ public class ClientApp extends Application {
     
     private String username;
     private int totalPoints;
+    private int totalWins;
     private String currentRoomId;
     
     private LoginController loginController;
@@ -64,13 +65,13 @@ public class ClientApp extends Application {
             System.out.println("[LOGOUT] Resetting state...");
             this.username = null;
             this.totalPoints = 0;
+            this.totalWins = 0;
             this.currentRoomId = null;
             this.pendingLobbyList = null;
             
             final NetworkClient oldClient = this.networkClient;
-            this.networkClient = new NetworkClient(this::onMessage);
             
-            System.out.println("[LOGOUT] Starting background disconnect thread...");
+            System.out.println("[LOGOUT] Starting background disconnect and reconnect...");
             new Thread(() -> {
                 try {
                     if (oldClient != null) {
@@ -78,16 +79,31 @@ public class ClientApp extends Application {
                         System.out.println("[LOGOUT] Old client disconnected");
                     }
                     Thread.sleep(300);
+                    
+                    this.networkClient = new NetworkClient(this::onMessage);
                     networkClient.connect();
                     System.out.println("[LOGOUT] New client connected");
+                    
+                    Platform.runLater(() -> {
+                        System.out.println("[LOGOUT] Showing login screen on JavaFX thread");
+                        showLogin();
+                    });
                 } catch (Exception e) {
                     System.err.println("[LOGOUT] Error in background: " + e.getMessage());
+                    e.printStackTrace();
+                    Platform.runLater(() -> {
+                        this.networkClient = new NetworkClient(this::onMessage);
+                        try {
+                            networkClient.connect();
+                            showLogin();
+                        } catch (Exception ex) {
+                            System.err.println("[LOGOUT] Fallback failed: " + ex.getMessage());
+                        }
+                    });
                 }
             }, "logout-thread").start();
             
-            System.out.println("[LOGOUT] Calling showLogin()...");
-            showLogin();
-            System.out.println("[LOGOUT] Completed");
+            System.out.println("[LOGOUT] Logout initiated, waiting for reconnection...");
         } catch (Exception e) {
             System.err.println("[LOGOUT] Exception: " + e.getMessage());
             e.printStackTrace();
@@ -107,9 +123,10 @@ public class ClientApp extends Application {
             
             loginController = loader.getController();
             loginController.setNetworkClient(networkClient);
-            loginController.setOnLoginSuccess((user, points) -> {
-                this.username = user;
-                this.totalPoints = points;
+            loginController.setOnLoginSuccess((data) -> {
+                this.username = data.username;
+                this.totalPoints = data.totalPoints;
+                this.totalWins = data.totalWins;
                 showLobby();
             });
             System.out.println("[showLogin] Controller configured");
@@ -135,6 +152,8 @@ public class ClientApp extends Application {
             lobbyController.setAudioService(audioService);
             lobbyController.setUsername(username);
             lobbyController.setTotalPoints(totalPoints);
+            lobbyController.setTotalWins(totalWins);
+            lobbyController.setStatus("Online");
             
             lobbyController.setOnLogout(v -> {
                 handleLogout();
@@ -148,6 +167,10 @@ public class ClientApp extends Application {
                 lobbyController.updateLobbyList(pendingLobbyList);
                 pendingLobbyList = null;
             }
+            
+            // Request fresh lobby list and leaderboard from server
+            networkClient.send(new Message(Protocol.LOBBY_REQUEST, null));
+            lobbyController.requestLeaderboardData();
         } catch (Exception e) {
             System.err.println("Error loading lobby view: " + e.getMessage());
             e.printStackTrace();
@@ -156,6 +179,11 @@ public class ClientApp extends Application {
 
     private void showGame() {
         audioService.stopBackgroundMusic();
+        
+        // Update status to In-game
+        if (lobbyController != null) {
+            lobbyController.setStatus("In-game");
+        }
         
         gameView = new GameView((x, y) -> {
             System.out.println("onClick callback triggered: x=" + x + ", y=" + y + ", currentRoomId=" + currentRoomId);
@@ -279,6 +307,16 @@ public class ClientApp extends Application {
                         gameView.updateFromPayload((Map<?, ?>) msg.payload);
                     }
                     showResult((Map<?, ?>) msg.payload);
+                }
+                case Protocol.LEADERBOARD -> {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> entries = (List<Map<String, Object>>) msg.payload;
+                    if (lobbyController != null) {
+                        lobbyController.updateLeaderboard(entries);
+                    }
+                    if (leaderboardController != null) {
+                        leaderboardController.updateLeaderboard(entries);
+                    }
                 }
                 case Protocol.ERROR -> {
                     String errorMsg = msg.payload != null ? String.valueOf(((Map<?, ?>) msg.payload).get("message")) : "Unknown error";

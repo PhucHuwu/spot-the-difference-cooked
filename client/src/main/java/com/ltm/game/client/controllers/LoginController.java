@@ -11,7 +11,7 @@ import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
 
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class LoginController {
     @FXML
@@ -21,13 +21,25 @@ public class LoginController {
     private PasswordField passwordField;
     
     private NetworkClient networkClient;
-    private BiConsumer<String, Integer> onLoginSuccess;
+    private Consumer<UserLoginData> onLoginSuccess;
+    
+    public static class UserLoginData {
+        public final String username;
+        public final int totalPoints;
+        public final int totalWins;
+        
+        public UserLoginData(String username, int totalPoints, int totalWins) {
+            this.username = username;
+            this.totalPoints = totalPoints;
+            this.totalWins = totalWins;
+        }
+    }
 
     public void setNetworkClient(NetworkClient client) {
         this.networkClient = client;
     }
 
-    public void setOnLoginSuccess(BiConsumer<String, Integer> callback) {
+    public void setOnLoginSuccess(Consumer<UserLoginData> callback) {
         this.onLoginSuccess = callback;
     }
 
@@ -76,6 +88,7 @@ public class LoginController {
         if (success) {
             Map<?, ?> user = (Map<?, ?>) payload.get("user");
             String username = String.valueOf(user.get("username"));
+            
             Object tp = user.get("totalPoints");
             int totalPoints = 0;
             if (tp != null) {
@@ -90,8 +103,22 @@ public class LoginController {
                 }
             }
             
+            Object tw = user.get("totalWins");
+            int totalWins = 0;
+            if (tw != null) {
+                if (tw instanceof Number) {
+                    totalWins = ((Number) tw).intValue();
+                } else {
+                    try {
+                        totalWins = Integer.parseInt(String.valueOf(tw).split("\\.")[0]);
+                    } catch (Exception e) {
+                        totalWins = 0;
+                    }
+                }
+            }
+            
             if (onLoginSuccess != null) {
-                onLoginSuccess.accept(username, totalPoints);
+                onLoginSuccess.accept(new UserLoginData(username, totalPoints, totalWins));
             }
         } else {
             showError(String.valueOf(payload.get("message")));

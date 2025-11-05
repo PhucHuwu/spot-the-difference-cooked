@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import com.ltm.game.shared.Protocol;
-import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,8 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClientHandler implements Runnable {
-    private static final Gson GSON = new Gson();
-
     private final Socket socket;
     private final LobbyService lobby;
     private final GameService gameService;
@@ -43,7 +40,11 @@ public class ClientHandler implements Runnable {
                 handle(msg);
             }
         } catch (Exception e) {
-            // client disconnected or error
+            if (session.username != null) {
+                Logger.error("Client error for user " + session.username, e);
+            } else {
+                Logger.debug("Client disconnected before authentication");
+            }
         } finally {
             if (session.username != null) {
                 lobby.onDisconnect(session);
@@ -55,6 +56,7 @@ public class ClientHandler implements Runnable {
     private void handle(Message msg) {
         switch (msg.type) {
             case Protocol.AUTH_LOGIN -> onLogin(msg);
+            case Protocol.LOBBY_REQUEST -> onLobbyRequest();
             case Protocol.INVITE_SEND -> lobby.onInviteSend(session, (Map<?,?>) msg.payload);
             case Protocol.INVITE_RESPONSE -> gameService.onInviteResponse(session, (Map<?,?>) msg.payload);
             case Protocol.QUEUE_JOIN -> onQueueJoin();
@@ -64,6 +66,12 @@ public class ClientHandler implements Runnable {
             case Protocol.GAME_QUIT -> gameService.onGameQuit(session, (Map<?,?>) msg.payload);
             case Protocol.LEADERBOARD -> onLeaderboard();
             default -> {}
+        }
+    }
+
+    private void onLobbyRequest() {
+        if (session.username != null) {
+            lobby.sendLobbyList(session);
         }
     }
 
@@ -124,7 +132,7 @@ public class ClientHandler implements Runnable {
             }
             session.send(new Message(Protocol.LEADERBOARD, entries).toJson());
         } catch (Exception e) {
-            System.err.println("Error getting leaderboard: " + e.getMessage());
+            Logger.error("Error getting leaderboard", e);
         }
     }
 }

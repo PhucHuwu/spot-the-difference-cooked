@@ -25,8 +25,6 @@ CREATE TABLE IF NOT EXISTS matches (
   FOREIGN KEY (player_b_id) REFERENCES users(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-
 -- Image sets for game content
 -- Store image file paths (relative to content.dir) instead of BLOBs
 CREATE TABLE IF NOT EXISTS image_sets (
@@ -45,7 +43,15 @@ CREATE TABLE IF NOT EXISTS image_differences (
   x INT NOT NULL,
   y INT NOT NULL,
   radius INT NOT NULL,
-  FOREIGN KEY (set_id) REFERENCES image_sets(id) ON DELETE CASCADE
+  FOREIGN KEY (set_id) REFERENCES image_sets(id) ON DELETE CASCADE,
+  INDEX idx_diffs_set (set_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_diffs_set ON image_differences(set_id);
+-- Matchmaking queue for online matchmaking
+CREATE TABLE IF NOT EXISTS matchmaking_queue (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  status ENUM('waiting','matched') NOT NULL DEFAULT 'waiting',
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+);

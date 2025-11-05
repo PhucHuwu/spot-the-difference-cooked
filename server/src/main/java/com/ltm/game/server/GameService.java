@@ -228,6 +228,16 @@ public class GameService {
         } catch (Exception e) {
             System.err.println("Failed to save match result: " + e.getMessage());
         }
+        
+        // Broadcast lobby list again after a small delay to ensure all clients receive updated status
+        new Thread(() -> {
+            try {
+                Thread.sleep(100);
+                lobby.broadcastLobby();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 
     private List<Map<String,Object>> sampleDifferences() {

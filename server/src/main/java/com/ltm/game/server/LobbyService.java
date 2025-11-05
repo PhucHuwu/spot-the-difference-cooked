@@ -77,7 +77,7 @@ public class LobbyService {
 
     public List<UserStatus> currentLobby() {
         List<UserStatus> list = new ArrayList<>();
-        online.forEach((name, sess) -> list.add(new UserStatus(name, userRepo.safeGetTotalPoints(name), sess.inGame?"busy":"idle")));
+        online.forEach((name, sess) -> list.add(new UserStatus(name, userRepo.safeGetTotalPoints(name), sess.inGame?"In-game":"Online")));
         return list;
     }
 
@@ -86,6 +86,12 @@ public class LobbyService {
         Message msg = new Message(Protocol.LOBBY_LIST, list);
         String json = msg.toJson();
         online.values().forEach(s -> s.send(json));
+    }
+
+    public void sendLobbyList(ClientSession session) {
+        List<UserStatus> list = currentLobby();
+        Message msg = new Message(Protocol.LOBBY_LIST, list);
+        session.send(msg.toJson());
     }
 
     public ClientSession getOnline(String username) { return online.get(username); }

@@ -112,15 +112,15 @@ public class ResultController {
         boolean isDraw = myScore == opponentScore;
         
         if (isDraw) {
-            resultIcon.setText("🤝");
+            resultIcon.setText("");
             resultTitle.setText("Ván này hoà rồi!");
             resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #f39c12;");
         } else if (isWinner) {
-            resultIcon.setText("🏆");
+            resultIcon.setText("");
             resultTitle.setText("Bạn đỉnh quá!");
             resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #f39c12;");
         } else {
-            resultIcon.setText("😢");
+            resultIcon.setText("");
             resultTitle.setText("Bạn đã thua!");
             resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #e74c3c;");
         }

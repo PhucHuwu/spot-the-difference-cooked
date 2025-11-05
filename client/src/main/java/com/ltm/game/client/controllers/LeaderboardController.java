@@ -70,7 +70,7 @@ public class LeaderboardController {
         }
     }
 
-    private void updateLeaderboard(List<Map<String, Object>> entries) {
+    public void updateLeaderboard(List<Map<String, Object>> entries) {
         entriesContainer.getChildren().clear();
         
         for (int i = 0; i < entries.size(); i++) {
