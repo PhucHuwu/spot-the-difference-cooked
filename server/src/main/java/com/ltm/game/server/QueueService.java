@@ -33,10 +33,10 @@ public class QueueService {
                 ps.executeUpdate();
             }
 
-            System.out.println("[QUEUE] " + username + " joined queue");
+            Logger.info("[QUEUE] " + username + " joined queue");
             tryMatchmaking();
         } catch (Exception e) {
-            System.err.println("[QUEUE] Error joining: " + e.getMessage());
+            Logger.error("[QUEUE] Error joining queue for " + username, e);
         }
     }
 
@@ -46,18 +46,18 @@ public class QueueService {
             ps.setString(1, username);
             int rows = ps.executeUpdate();
             if (rows > 0) {
-                System.out.println("[QUEUE] " + username + " left queue");
+                Logger.info("[QUEUE] " + username + " left queue");
             }
         } catch (Exception e) {
-            System.err.println("[QUEUE] Error leaving: " + e.getMessage());
+            Logger.error("[QUEUE] Error leaving queue for " + username, e);
         }
     }
 
     public Map<String, Object> getQueueStatus(String username) {
-        try (Connection c = Database.getConnection();
-             PreparedStatement ps = c.prepareStatement(
-                     "SELECT join_time, TIMESTAMPDIFF(SECOND, join_time, NOW()) as wait_seconds " +
-                     "FROM matchmaking_queue WHERE username = ? AND status = 'waiting'")) {
+    try (Connection c = Database.getConnection();
+         PreparedStatement ps = c.prepareStatement(
+             "SELECT join_time, TIMESTAMPDIFF(SECOND, join_time, NOW()) as wait_seconds " +
+             "FROM matchmaking_queue WHERE username = ? AND status = 'waiting'")) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -69,7 +69,7 @@ public class QueueService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("[QUEUE] Error getting status: " + e.getMessage());
+            Logger.error("[QUEUE] Error getting status for " + username, e);
         }
         return Map.of("inQueue", false);
     }
@@ -81,8 +81,8 @@ public class QueueService {
     private void tryMatchmaking() {
         try (Connection c = Database.getConnection()) {
             // Get 2 waiting players
-            try (PreparedStatement ps = c.prepareStatement(
-                    "SELECT username FROM matchmaking_queue WHERE status = 'waiting' ORDER BY join_time LIMIT 2")) {
+        try (PreparedStatement ps = c.prepareStatement(
+            "SELECT username FROM matchmaking_queue WHERE status = 'waiting' ORDER BY join_time LIMIT 2")) {
                 try (ResultSet rs = ps.executeQuery()) {
                     String player1 = null;
                     String player2 = null;
@@ -100,7 +100,7 @@ public class QueueService {
                 }
             }
         } catch (Exception e) {
-            System.err.println("[QUEUE] Matchmaking error: " + e.getMessage());
+            Logger.error("[QUEUE] Matchmaking error", e);
         }
     }
 
@@ -113,7 +113,7 @@ public class QueueService {
             ps.executeUpdate();
         }
 
-        System.out.println("[QUEUE] Matched: " + player1 + " vs " + player2);
+        Logger.info("[QUEUE] Matched: " + player1 + " vs " + player2);
 
         // Notify both players
         ClientSession s1 = lobbyService.getOnline(player1);
@@ -132,7 +132,7 @@ public class QueueService {
                 Thread.sleep(1000);
                 gameService.startGame(player1, player2);
             } catch (Exception e) {
-                System.err.println("[QUEUE] Error starting game: " + e.getMessage());
+                Logger.error("[QUEUE] Error starting game between " + player1 + " and " + player2, e);
             }
         }).start();
 

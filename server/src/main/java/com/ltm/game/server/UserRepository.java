@@ -35,8 +35,11 @@ public class UserRepository {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     String hash = rs.getString(1);
-                    // WARNING: demo only (plain text); replace with proper hashing e.g., BCrypt
-                    return hash.equals(password);
+                    // Backward-compatible check:
+                    // - accept exact match (legacy plaintext rows)
+                    // - or accept SHA-256(password) equals stored hash (dumped users use hashes)
+                    String candidateSha = PasswordUtil.sha256(password);
+                    return hash != null && (hash.equals(password) || hash.equalsIgnoreCase(candidateSha));
                 }
             }
         }
@@ -46,7 +49,8 @@ public class UserRepository {
     public void createUser(String username, String password) throws Exception {
         try (Connection c = getConn(); PreparedStatement ps = c.prepareStatement("INSERT INTO users(username, password_hash) VALUES (?,?)")) {
             ps.setString(1, username);
-            ps.setString(2, password);
+            // Store SHA-256 hash for new users
+            ps.setString(2, PasswordUtil.sha256(password));
             ps.executeUpdate();
         }
     }

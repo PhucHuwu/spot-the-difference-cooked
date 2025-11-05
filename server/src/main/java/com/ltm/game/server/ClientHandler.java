@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import com.ltm.game.shared.Protocol;
-import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -18,8 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ClientHandler implements Runnable {
-    private static final Gson GSON = new Gson();
-
     private final Socket socket;
     private final LobbyService lobby;
     private final GameService gameService;
@@ -43,7 +40,11 @@ public class ClientHandler implements Runnable {
                 handle(msg);
             }
         } catch (Exception e) {
-            // client disconnected or error
+            if (session.username != null) {
+                Logger.error("Client error for user " + session.username, e);
+            } else {
+                Logger.debug("Client disconnected before authentication");
+            }
         } finally {
             if (session.username != null) {
                 lobby.onDisconnect(session);
@@ -131,7 +132,7 @@ public class ClientHandler implements Runnable {
             }
             session.send(new Message(Protocol.LEADERBOARD, entries).toJson());
         } catch (Exception e) {
-            System.err.println("Error getting leaderboard: " + e.getMessage());
+            Logger.error("Error getting leaderboard", e);
         }
     }
 }
