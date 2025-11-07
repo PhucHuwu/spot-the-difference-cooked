@@ -33,5 +33,8 @@ public final class Protocol {
     public static final String TIMER_TICK = "timer/tick";
 
     public static final String LEADERBOARD = "leaderboard/data";
+    
+    public static final String MATCH_HISTORY_REQUEST = "match/history/request";
+    public static final String MATCH_HISTORY_DATA = "match/history/data";
 }
 

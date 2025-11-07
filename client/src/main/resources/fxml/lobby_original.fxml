@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
@@ -196,7 +196,7 @@
                 
                 <!-- BOTTOM: Game Mode Buttons -->
                 <bottom>
-                    <VBox alignment="CENTER" spacing="15"
+                    <HBox alignment="CENTER" spacing="20"
                           style="-fx-background-color: transparent;">
                         <padding>
                             <Insets top="15" right="20" bottom="30" left="20"/>
@@ -210,30 +210,14 @@
                                      -fx-padding: 15px 25px;
                                      -fx-cursor: hand;
                                      -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.8), 15, 0.6, 0, 4);">
-                            <Label text="TÌM TRẬN"
+                            <Label text="TÌM TRẬN"
                                    style="-fx-font-size: 20px; 
                                           -fx-font-weight: 900; 
                                           -fx-text-fill: #F0E6D2;
                                           -fx-letter-spacing: 2px;
                                           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 3, 1, 0, 2);"/>
                         </VBox>
-                        
-                        <!-- Match History Button -->
-                        <VBox spacing="8" alignment="CENTER" onMouseClicked="#handleShowMatchHistory"
-                              maxWidth="280" prefWidth="280"
-                              style="-fx-background-color: linear-gradient(to bottom, #C89B3C, #785A28); 
-                                     -fx-background-radius: 8px; 
-                                     -fx-padding: 15px 25px;
-                                     -fx-cursor: hand;
-                                     -fx-effect: dropshadow(gaussian, rgba(200, 170, 110, 0.8), 15, 0.6, 0, 4);">
-                            <Label text="LỊCH SỬ TRẬN ĐẤU"
-                                   style="-fx-font-size: 20px; 
-                                          -fx-font-weight: 900; 
-                                          -fx-text-fill: #F0E6D2;
-                                          -fx-letter-spacing: 2px;
-                                          -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 3, 1, 0, 2);"/>
-                        </VBox>
-                    </VBox>
+                    </HBox>
                 </bottom>
                 
                 <!-- RIGHT SIDEBAR: Player List & Leaderboard -->
@@ -325,5 +309,4 @@
     </BorderPane>
     
 </StackPane>
-
 

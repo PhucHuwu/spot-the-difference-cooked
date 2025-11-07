@@ -2,6 +2,7 @@ package com.ltm.game.client.controllers;
 
 import com.ltm.game.shared.Message;
 import com.ltm.game.shared.Protocol;
+import com.ltm.game.client.ClientApp;
 import com.ltm.game.client.models.LobbyUserRow;
 import com.ltm.game.client.models.LeaderboardRow;
 import com.ltm.game.client.services.NetworkClient;
@@ -1044,6 +1045,147 @@ public class LobbyController {
                 setGraphic(empty ? null : box);
             }
         };
+    }
+    
+    @FXML
+    private void handleShowMatchHistory() {
+        System.out.println("[LobbyController] handleShowMatchHistory called");
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                getClass().getResource("/fxml/match-history-dialog.fxml")
+            );
+            System.out.println("[LobbyController] Loading FXML...");
+            StackPane dialogRoot = loader.load();
+            System.out.println("[LobbyController] FXML loaded successfully");
+            
+            MatchHistoryController controller = loader.getController();
+            controller.setNetworkClient(networkClient);
+            System.out.println("[LobbyController] Controller set up");
+            
+            // Set the controller reference in ClientApp if possible
+            if (rootPane.getScene() != null && rootPane.getScene().getWindow() instanceof Stage) {
+                Stage ownerStage = (Stage) rootPane.getScene().getWindow();
+                Object userData = ownerStage.getUserData();
+                if (userData instanceof ClientApp) {
+                    ((ClientApp) userData).setMatchHistoryController(controller);
+                    System.out.println("[LobbyController] Match history controller registered in ClientApp");
+                }
+            }
+            
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(Modality.NONE); // Non-modal - không block owner window
+            dialogStage.initOwner(rootPane.getScene().getWindow());
+            dialogStage.setTitle("Lịch sử trận đấu");
+            dialogStage.setResizable(true); // Cho phép resize
+            // Removed setAlwaysOnTop - dialog sẽ chỉ hiện trên owner, không đè lên apps khác
+            
+            // Set min/max size để giữ layout đẹp
+            dialogStage.setMinWidth(800);
+            dialogStage.setMinHeight(600);
+            dialogStage.setMaxWidth(1400);
+            dialogStage.setMaxHeight(900);
+            
+            Scene scene = new Scene(dialogRoot, 1000, 700);
+            scene.setFill(Color.TRANSPARENT);
+            dialogStage.setScene(scene);
+            dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            
+            System.out.println("[LobbyController] Dialog stage created, about to show...");
+            
+            // Center dialog relative to owner window
+            Stage owner = (Stage) rootPane.getScene().getWindow();
+            
+            // Store initial sizes for scaling ratio
+            final double initialOwnerWidth = owner.getWidth();
+            final double initialOwnerHeight = owner.getHeight();
+            final double initialDialogWidth = 1000;
+            final double initialDialogHeight = 700;
+            
+            dialogStage.setOnShown(e -> {
+                dialogStage.setX(owner.getX() + (owner.getWidth() - dialogStage.getWidth()) / 2);
+                dialogStage.setY(owner.getY() + (owner.getHeight() - dialogStage.getHeight()) / 2);
+            });
+            
+            // Create listeners that can be removed later
+            javafx.beans.value.ChangeListener<Number> xListener = (obs, oldVal, newVal) -> {
+                if (dialogStage.isShowing()) {
+                    dialogStage.setX(newVal.doubleValue() + (owner.getWidth() - dialogStage.getWidth()) / 2);
+                }
+            };
+            
+            javafx.beans.value.ChangeListener<Number> yListener = (obs, oldVal, newVal) -> {
+                if (dialogStage.isShowing()) {
+                    dialogStage.setY(newVal.doubleValue() + (owner.getHeight() - dialogStage.getHeight()) / 2);
+                }
+            };
+            
+            javafx.beans.value.ChangeListener<Number> widthListener = (obs, oldVal, newVal) -> {
+                if (dialogStage.isShowing()) {
+                    // Scale dialog width proportionally to owner window resize
+                    double scaleRatio = newVal.doubleValue() / initialOwnerWidth;
+                    double newDialogWidth = Math.max(dialogStage.getMinWidth(), 
+                                          Math.min(dialogStage.getMaxWidth(), 
+                                                   initialDialogWidth * scaleRatio));
+                    dialogStage.setWidth(newDialogWidth);
+                    dialogStage.setX(owner.getX() + (newVal.doubleValue() - newDialogWidth) / 2);
+                }
+            };
+            
+            javafx.beans.value.ChangeListener<Number> heightListener = (obs, oldVal, newVal) -> {
+                if (dialogStage.isShowing()) {
+                    // Scale dialog height proportionally to owner window resize
+                    double scaleRatio = newVal.doubleValue() / initialOwnerHeight;
+                    double newDialogHeight = Math.max(dialogStage.getMinHeight(), 
+                                           Math.min(dialogStage.getMaxHeight(), 
+                                                    initialDialogHeight * scaleRatio));
+                    dialogStage.setHeight(newDialogHeight);
+                    dialogStage.setY(owner.getY() + (newVal.doubleValue() - newDialogHeight) / 2);
+                }
+            };
+            
+            // Add listeners
+            owner.xProperty().addListener(xListener);
+            owner.yProperty().addListener(yListener);
+            owner.widthProperty().addListener(widthListener);
+            owner.heightProperty().addListener(heightListener);
+            
+            // Hide dialog when owner window is minimized or hidden
+            javafx.beans.value.ChangeListener<Boolean> iconifiedListener = (obs, wasIconified, isIconified) -> {
+                if (isIconified) {
+                    dialogStage.hide();
+                } else {
+                    dialogStage.show();
+                }
+            };
+            
+            owner.iconifiedProperty().addListener(iconifiedListener);
+            
+            // Clean up listeners and reference when dialog closes
+            dialogStage.setOnHidden(e -> {
+                // Remove listeners to prevent memory leak
+                owner.xProperty().removeListener(xListener);
+                owner.yProperty().removeListener(yListener);
+                owner.widthProperty().removeListener(widthListener);
+                owner.heightProperty().removeListener(heightListener);
+                owner.iconifiedProperty().removeListener(iconifiedListener);
+                
+                // Clean up controller reference
+                if (rootPane.getScene() != null && rootPane.getScene().getWindow() instanceof Stage) {
+                    Stage ownerStage = (Stage) rootPane.getScene().getWindow();
+                    Object userData = ownerStage.getUserData();
+                    if (userData instanceof ClientApp) {
+                        ((ClientApp) userData).setMatchHistoryController(null);
+                    }
+                }
+            });
+            
+            dialogStage.show();
+            System.out.println("[LobbyController] Dialog stage shown successfully");
+            
+        } catch (Exception e) {
+            System.err.println("[LobbyController] Error showing match history dialog:");
+            e.printStackTrace();
+        }
     }
 }
 

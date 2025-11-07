@@ -1,0 +1,153 @@
+/* Match History Dialog - Riot Games Style */
+
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* Stats Boxes Hover Effect */
+.stat-box:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(200, 155, 60, 0.25), rgba(120, 90, 40, 0.15));
+    -fx-effect: dropshadow(gaussian, rgba(200, 155, 60, 0.4), 10, 0.6, 0, 0);
+}
+
+/* Table Styling */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view .viewport {
+    -fx-background-color: transparent;
+}
+
+.table-view .corner {
+    -fx-background-color: transparent;
+}
+
+.table-view .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to bottom, rgba(200, 155, 60, 0.2), rgba(120, 90, 40, 0.15));
+    -fx-border-color: #C89B3C;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(200, 155, 60, 0.3);
+    -fx-border-width: 0 1px 0 0;
+    -fx-padding: 12px 8px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #C8AA6E;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 1px;
+    -fx-alignment: center-left;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: #F0E6D2;
+    -fx-padding: 12px 8px;
+    -fx-alignment: center-left;
+    -fx-border-color: rgba(200, 155, 60, 0.1);
+    -fx-border-width: 0 0 1px 0;
+}
+
+.table-view .table-row-cell {
+    -fx-background-color: transparent;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: rgba(200, 155, 60, 0.1);
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: rgba(200, 155, 60, 0.15);
+}
+
+/* Scrollbar Styling */
+.table-view .scroll-bar:vertical {
+    -fx-background-color: rgba(1, 10, 19, 0.5);
+    -fx-padding: 0;
+}
+
+.table-view .scroll-bar:vertical .track {
+    -fx-background-color: rgba(1, 10, 19, 0.3);
+    -fx-background-radius: 5px;
+}
+
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(200, 155, 60, 0.4);
+    -fx-background-radius: 5px;
+}
+
+.table-view .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: rgba(200, 155, 60, 0.6);
+}
+
+.table-view .scroll-bar:vertical .increment-button,
+.table-view .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Result Badge Styling */
+.result-win {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 12px;
+    -fx-effect: dropshadow(gaussian, rgba(76, 175, 80, 0.6), 5, 0.5, 0, 2);
+}
+
+.result-loss {
+    -fx-background-color: #F44336;
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 12px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 67, 54, 0.6), 5, 0.5, 0, 2);
+}
+
+.result-draw {
+    -fx-background-color: #FFC107;
+    -fx-text-fill: #1a1a1a;
+    -fx-font-weight: 900;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px 12px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 193, 7, 0.6), 5, 0.5, 0, 2);
+}
+
+/* Badge Styling */
+.badge-mvp {
+    -fx-background-color: linear-gradient(to right, #FFD700, #FFA500);
+    -fx-text-fill: #1a1a1a;
+    -fx-font-weight: 900;
+    -fx-font-size: 10px;
+    -fx-background-radius: 3px;
+    -fx-padding: 3px 8px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 4, 0.6, 0, 1);
+}
+
+.badge-perfect {
+    -fx-background-color: linear-gradient(to right, #C89B3C, #785A28);
+    -fx-text-fill: #F0E6D2;
+    -fx-font-weight: 900;
+    -fx-font-size: 10px;
+    -fx-background-radius: 3px;
+    -fx-padding: 3px 8px;
+    -fx-effect: dropshadow(gaussian, rgba(200, 155, 60, 0.8), 4, 0.6, 0, 1);
+}
+
+/* Close Button Hover */
+.button:hover {
+    -fx-background-color: rgba(244, 67, 54, 0.4) !important;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}

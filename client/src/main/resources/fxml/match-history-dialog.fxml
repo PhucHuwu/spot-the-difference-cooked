@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx" 
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.ltm.game.client.controllers.MatchHistoryController"
+           stylesheets="@../styles/match-history.css"
+           style="-fx-background-color: rgba(0, 0, 0, 0.75);">
+    
+    <!-- Main Dialog Container -->
+    <VBox alignment="CENTER" maxWidth="1000" maxHeight="700" spacing="0"
+          style="-fx-background-color: #010A13; 
+                 -fx-border-color: #C89B3C; 
+                 -fx-border-width: 2px;
+                 -fx-background-radius: 10px;
+                 -fx-border-radius: 10px;
+                 -fx-effect: dropshadow(gaussian, rgba(200, 155, 60, 0.6), 30, 0.7, 0, 0);">
+        
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="12" 
+              style="-fx-background-color: linear-gradient(to right, rgba(200, 155, 60, 0.2), rgba(120, 90, 40, 0.1));
+                     -fx-padding: 15px 20px;
+                     -fx-border-color: #C89B3C;
+                     -fx-border-width: 0 0 2px 0;">
+            
+            <Label text="⚔" style="-fx-font-size: 28px; -fx-text-fill: #C89B3C;"/>
+            
+            <VBox spacing="2">
+                <Label text="LỊCH SỬ TRẬN ĐẤU" 
+                       style="-fx-font-size: 20px; 
+                              -fx-font-weight: 900; 
+                              -fx-text-fill: #F0E6D2;
+                              -fx-letter-spacing: 2px;
+                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 2, 1, 0, 2);"/>
+                <Label text="Match History" 
+                       style="-fx-font-size: 10px; 
+                              -fx-text-fill: #C8AA6E;
+                              -fx-letter-spacing: 1px;"/>
+            </VBox>
+            
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <!-- Close Button -->
+            <Button fx:id="closeButton" text="✕" onAction="#handleClose"
+                    style="-fx-background-color: rgba(244, 67, 54, 0.2);
+                           -fx-text-fill: #F44336;
+                           -fx-font-size: 18px;
+                           -fx-font-weight: bold;
+                           -fx-background-radius: 5px;
+                           -fx-cursor: hand;
+                           -fx-padding: 4px 12px;"
+                    onMouseEntered="#handleCloseHover"
+                    onMouseExited="#handleCloseExit"/>
+        </HBox>
+        
+        <!-- Stats Overview -->
+        <HBox alignment="CENTER" spacing="12" 
+              style="-fx-background-color: rgba(1, 10, 19, 0.5);
+                     -fx-padding: 15px;">
+            
+            <!-- Total Matches -->
+            <VBox alignment="CENTER" spacing="5" styleClass="stat-box" 
+                  style="-fx-background-color: linear-gradient(to bottom, rgba(200, 155, 60, 0.15), rgba(120, 90, 40, 0.1));
+                         -fx-border-color: #C89B3C;
+                         -fx-border-width: 1px;
+                         -fx-border-radius: 8px;
+                         -fx-background-radius: 8px;
+                         -fx-padding: 12px 25px;">
+                <Label text="TỔNG TRẬN" 
+                       style="-fx-font-size: 11px; 
+                              -fx-text-fill: #C8AA6E;
+                              -fx-font-weight: 600;
+                              -fx-letter-spacing: 1px;"/>
+                <Label fx:id="totalMatchesLabel" text="0" 
+                       style="-fx-font-size: 32px; 
+                              -fx-font-weight: 900; 
+                              -fx-text-fill: #F0E6D2;
+                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 2, 1, 0, 1);"/>
+            </VBox>
+            
+            <!-- Wins -->
+            <VBox alignment="CENTER" spacing="5" styleClass="stat-box"
+                  style="-fx-background-color: linear-gradient(to bottom, rgba(76, 175, 80, 0.15), rgba(56, 142, 60, 0.1));
+                         -fx-border-color: #4CAF50;
+                         -fx-border-width: 1px;
+                         -fx-border-radius: 8px;
+                         -fx-background-radius: 8px;
+                         -fx-padding: 12px 25px;">
+                <Label text="THẮNG" 
+                       style="-fx-font-size: 11px; 
+                              -fx-text-fill: #81C784;
+                              -fx-font-weight: 600;
+                              -fx-letter-spacing: 1px;"/>
+                <Label fx:id="winsLabel" text="0" 
+                       style="-fx-font-size: 32px; 
+                              -fx-font-weight: 900; 
+                              -fx-text-fill: #4CAF50;
+                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 2, 1, 0, 1);"/>
+            </VBox>
+            
+            <!-- Losses -->
+            <VBox alignment="CENTER" spacing="5" styleClass="stat-box"
+                  style="-fx-background-color: linear-gradient(to bottom, rgba(244, 67, 54, 0.15), rgba(198, 40, 40, 0.1));
+                         -fx-border-color: #F44336;
+                         -fx-border-width: 1px;
+                         -fx-border-radius: 8px;
+                         -fx-background-radius: 8px;
+                         -fx-padding: 12px 25px;">
+                <Label text="THUA" 
+                       style="-fx-font-size: 11px; 
+                              -fx-text-fill: #E57373;
+                              -fx-font-weight: 600;
+                              -fx-letter-spacing: 1px;"/>
+                <Label fx:id="lossesLabel" text="0" 
+                       style="-fx-font-size: 32px; 
+                              -fx-font-weight: 900; 
+                              -fx-text-fill: #F44336;
+                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 2, 1, 0, 1);"/>
+            </VBox>
+            
+            <!-- Draws -->
+            <VBox alignment="CENTER" spacing="5" styleClass="stat-box"
+                  style="-fx-background-color: linear-gradient(to bottom, rgba(255, 193, 7, 0.15), rgba(245, 124, 0, 0.1));
+                         -fx-border-color: #FFC107;
+                         -fx-border-width: 1px;
+                         -fx-border-radius: 8px;
+                         -fx-background-radius: 8px;
+                         -fx-padding: 12px 25px;">
+                <Label text="HÒA" 
+                       style="-fx-font-size: 11px; 
+                              -fx-text-fill: #FFD54F;
+                              -fx-font-weight: 600;
+                              -fx-letter-spacing: 1px;"/>
+                <Label fx:id="drawsLabel" text="0" 
+                       style="-fx-font-size: 32px; 
+                              -fx-font-weight: 900; 
+                              -fx-text-fill: #FFC107;
+                              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 2, 1, 0, 1);"/>
+            </VBox>
+        </HBox>
+        
+        <!-- Match History Table -->
+        <VBox VBox.vgrow="ALWAYS" style="-fx-background-color: rgba(1, 10, 19, 0.3); -fx-padding: 15px;">
+            <Label text="Trận đấu gần đây" 
+                   style="-fx-font-size: 13px; 
+                          -fx-font-weight: 700; 
+                          -fx-text-fill: #C8AA6E;
+                          -fx-letter-spacing: 1px;
+                          -fx-padding: 0 0 8px 0;"/>
+            
+            <TableView fx:id="historyTable" VBox.vgrow="ALWAYS"
+                       style="-fx-background-color: transparent;">
+                <columns>
+                    <TableColumn fx:id="colDate" text="THỜI GIAN"/>
+                    <TableColumn fx:id="colOpponent" text="ĐỐI THỦ"/>
+                    <TableColumn fx:id="colResult" text="KẾT QUẢ"/>
+                    <TableColumn fx:id="colScore" text="TỈ SỐ"/>
+                </columns>
+                <placeholder>
+                    <Label text="Chưa có trận đấu nào" 
+                           style="-fx-font-size: 14px; 
+                                  -fx-text-fill: #5C5B57;
+                                  -fx-font-style: italic;"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </VBox>
+</StackPane>

@@ -32,6 +32,7 @@ public class ClientApp extends Application {
     private GameView gameView;
     private ResultController resultController;
     private LeaderboardController leaderboardController;
+    private MatchHistoryController matchHistoryController;
     
     private List<Map<String, Object>> pendingLobbyList;
 
@@ -47,6 +48,7 @@ public class ClientApp extends Application {
         networkClient.connect();
         
         stage.setTitle("Spot The Difference");
+        stage.setUserData(this); // Set ClientApp reference for controllers to access
         
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
         stage.setX(screenBounds.getMinX());
@@ -312,10 +314,21 @@ public class ClientApp extends Application {
                         leaderboardController.updateLeaderboard(entries);
                     }
                 }
+                case Protocol.MATCH_HISTORY_DATA -> {
+                    if (matchHistoryController != null) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> data = (Map<String, Object>) msg.payload;
+                        matchHistoryController.handleMatchHistoryData(data);
+                    }
+                }
                 case Protocol.ERROR -> {
                 }
             }
         });
+    }
+    
+    public void setMatchHistoryController(MatchHistoryController controller) {
+        this.matchHistoryController = controller;
     }
 }
 

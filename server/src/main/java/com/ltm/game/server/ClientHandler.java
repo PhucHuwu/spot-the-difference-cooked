@@ -69,6 +69,7 @@ public class ClientHandler implements Runnable {
             case Protocol.GAME_CLICK -> gameService.onGameClick(session, (Map<?,?>) msg.payload);
             case Protocol.GAME_QUIT -> gameService.onGameQuit(session, (Map<?,?>) msg.payload);
             case Protocol.LEADERBOARD -> onLeaderboard();
+            case Protocol.MATCH_HISTORY_REQUEST -> onMatchHistoryRequest();
             default -> {}
         }
     }
@@ -161,4 +162,97 @@ public class ClientHandler implements Runnable {
             Logger.error("Error getting leaderboard", e);
         }
     }
+    
+    private void onMatchHistoryRequest() {
+        if (session.username == null) return;
+        
+        try {
+            // First get user ID from username
+            Integer userId = null;
+            try (Connection c = Database.getConnection();
+                 PreparedStatement ps = c.prepareStatement("SELECT id FROM users WHERE username = ?")) {
+                ps.setString(1, session.username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        userId = rs.getInt("id");
+                    }
+                }
+            }
+            
+            if (userId == null) {
+                Logger.error("User not found: " + session.username);
+                return;
+            }
+            
+            List<Map<String, Object>> matches = new ArrayList<>();
+            
+            try (Connection c = Database.getConnection();
+                 PreparedStatement ps = c.prepareStatement(
+                     "SELECT m.id, m.score_a, m.score_b, m.result, m.created_at, " +
+                     "CASE " +
+                     "  WHEN m.player_a_id = ? THEN ua.username " +
+                     "  ELSE ub.username " +
+                     "END as opponent, " +
+                     "CASE " +
+                     "  WHEN m.player_a_id = ? AND m.score_a > m.score_b THEN 'THẮNG' " +
+                     "  WHEN m.player_a_id = ? AND m.score_a < m.score_b THEN 'THUA' " +
+                     "  WHEN m.player_b_id = ? AND m.score_b > m.score_a THEN 'THẮNG' " +
+                     "  WHEN m.player_b_id = ? AND m.score_b < m.score_a THEN 'THUA' " +
+                     "  ELSE 'HÒA' " +
+                     "END as match_result, " +
+                     "CASE " +
+                     "  WHEN m.player_a_id = ? THEN m.score_a " +
+                     "  ELSE m.score_b " +
+                     "END as my_score, " +
+                     "CASE " +
+                     "  WHEN m.player_a_id = ? THEN m.score_b " +
+                     "  ELSE m.score_a " +
+                     "END as opponent_score " +
+                     "FROM matches m " +
+                     "JOIN users ua ON m.player_a_id = ua.id " +
+                     "JOIN users ub ON m.player_b_id = ub.id " +
+                     "WHERE m.player_a_id = ? OR m.player_b_id = ? " +
+                     "ORDER BY m.created_at DESC LIMIT 20")) {
+                
+                // Set all parameters (userId appears 9 times in query)
+                for (int i = 1; i <= 9; i++) {
+                    ps.setInt(i, userId);
+                }
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Map<String, Object> match = new HashMap<>();
+                        match.put("matchId", String.valueOf(rs.getInt("id")));
+                        match.put("opponent", rs.getString("opponent"));
+                        match.put("result", rs.getString("match_result"));
+                        match.put("myScore", rs.getInt("my_score"));
+                        match.put("opponentScore", rs.getInt("opponent_score"));
+                        
+                        // Since we don't have duration in DB, use a placeholder
+                        match.put("duration", "N/A");
+                        
+                        // Use created_at as match date
+                        java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+                        match.put("date", createdAt != null ? createdAt.toLocalDateTime().toString() : "");
+                        
+                        // Check for MVP (highest score) and PERFECT (all differences found)
+                        int myScore = rs.getInt("my_score");
+                        int opponentScore = rs.getInt("opponent_score");
+                        match.put("mvp", myScore > opponentScore);
+                        match.put("perfect", myScore >= 7); // 7+ points = perfect game
+                        
+                        matches.add(match);
+                    }
+                }
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("matches", matches);
+            session.send(new Message(Protocol.MATCH_HISTORY_DATA, response).toJson());
+            
+        } catch (Exception e) {
+            Logger.error("Error getting match history for " + session.username, e);
+        }
+    }
 }
+
