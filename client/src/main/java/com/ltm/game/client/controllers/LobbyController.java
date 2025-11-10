@@ -796,184 +796,269 @@ public class LobbyController {
     }
 
     public void showInviteDialog(String fromUser) {
+        // Create a non-modal, owner-attached invite dialog that stays inside the app window
+        Stage owner = (Stage) rootPane.getScene().getWindow();
         Stage inviteDialog = new Stage();
-        inviteDialog.initOwner(rootPane.getScene().getWindow()); // Gắn dialog vào cửa sổ game
-        inviteDialog.initModality(Modality.APPLICATION_MODAL);
-        inviteDialog.setTitle("Lời mời thi đấu");
+        inviteDialog.initOwner(owner);
+        inviteDialog.initModality(Modality.NONE);
+        inviteDialog.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         inviteDialog.setResizable(false);
-        
-        VBox dialogContent = new VBox(20);
+
+        // Compact content styled to match Riot aesthetic; will scale with owner window
+        VBox dialogContent = new VBox(12);
         dialogContent.setAlignment(Pos.CENTER);
-        dialogContent.setPadding(new Insets(50, 60, 50, 60));
+        dialogContent.setPadding(new Insets(18, 22, 18, 22));
         dialogContent.setStyle(
-            "-fx-background-color: transparent;"
+            "-fx-background-color: linear-gradient(to bottom right, rgba(1,10,19,0.9), rgba(6,18,25,0.95));" +
+            "-fx-background-radius: 12px;" +
+            "-fx-border-radius: 12px;" +
+            "-fx-border-color: rgba(200,155,60,0.9);" +
+            "-fx-border-width: 2px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 18, 0.7, 0, 6);"
         );
-        
-        Label iconLabel = new Label("⚔️");
-        iconLabel.setStyle(
-            "-fx-font-size: 56px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 10, 0.7, 0, 2);"
-        );
-        
+
+        Label iconLabel = new Label("⚔");
+        iconLabel.setStyle("-fx-font-size: 34px; -fx-text-fill: #C89B3C;");
+
         Label headerLabel = new Label("Lời mời thi đấu");
-        headerLabel.setStyle(
-            "-fx-font-size: 28px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-text-fill: #2c3e50;" +
-            "-fx-effect: dropshadow(gaussian, rgba(255,255,255,0.8), 8, 0.7, 0, 1);"
-        );
-        
-        Label messageLabel = new Label(fromUser + " mời bạn thi đấu!");
-        messageLabel.setStyle(
-            "-fx-font-size: 20px;" +
-            "-fx-text-fill: #34495e;" +
-            "-fx-font-weight: bold;" +
-            "-fx-padding: 18px 25px;" +
-            "-fx-background-color: rgba(255,255,255,0.9);" +
-            "-fx-background-radius: 15px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.6, 0, 3);"
-        );
-        
+        headerLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #F0E6D2;");
+
+        Label messageLabel = new Label(fromUser + " muốn thách đấu với bạn");
+        messageLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: #D8E6F2; -fx-font-weight: 700;");
+
         Label countdownLabel = new Label("10");
         countdownLabel.setStyle(
-            "-fx-font-size: 36px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-text-fill: #e74c3c;" +
-            "-fx-padding: 15px 25px;" +
-            "-fx-background-color: rgba(255,255,255,0.95);" +
-            "-fx-background-radius: 50px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(231,76,60,0.6), 12, 0.8, 0, 4);"
+            "-fx-font-size: 20px; -fx-font-weight: 800; -fx-text-fill: #FFDD57; " +
+            "-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 20px; -fx-padding: 6px 12px;"
         );
-        
-        HBox buttonBox = new HBox(20);
+
+        HBox buttonBox = new HBox(12);
         buttonBox.setAlignment(Pos.CENTER);
-        
-        Button acceptBtn = new Button("✓ Chấp nhận");
+
+        Button acceptBtn = new Button("CHẤP NHẬN");
         acceptBtn.setStyle(
-            "-fx-font-size: 18px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);" +
-            "-fx-background-radius: 30px;" +
-            "-fx-padding: 14px 35px;" +
-            "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(52,152,219,0.6), 10, 0.7, 0, 4);"
+            "-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #0B2E13;" +
+            "-fx-background-color: linear-gradient(#A6E56B, #69C44A); -fx-background-radius: 8px;" +
+            "-fx-padding: 8px 18px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 6, 0.5, 0, 2);"
         );
-        
-        Button declineBtn = new Button("✗ Từ chối");
+
+        Button declineBtn = new Button("TỪ CHỐI");
         declineBtn.setStyle(
-            "-fx-font-size: 18px;" +
-            "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);" +
-            "-fx-background-radius: 30px;" +
-            "-fx-padding: 14px 35px;" +
-            "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(149,165,166,0.6), 10, 0.7, 0, 4);"
+            "-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #3A0B0B;" +
+            "-fx-background-color: linear-gradient(#F28A7C, #D94A3A); -fx-background-radius: 8px;" +
+            "-fx-padding: 8px 18px; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 6, 0.5, 0, 2);"
         );
-        
+
+        // Countdown and auto-decline
         final int[] countdown = {10};
-        
-        Runnable autoDecline = () -> {
-            networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", false)));
-            inviteDialog.close();
-        };
-        
-        Timeline[] countdownTimerRef = new Timeline[1];
-        countdownTimerRef[0] = new Timeline(
-            new KeyFrame(Duration.seconds(1), e -> {
-                countdown[0]--;
-                if (countdown[0] > 0) {
-                    countdownLabel.setText(String.valueOf(countdown[0]));
-                    if (countdown[0] <= 3) {
-                        countdownLabel.setStyle(
-                            "-fx-font-size: 42px;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-text-fill: #e74c3c;" +
-                            "-fx-padding: 15px 25px;" +
-                            "-fx-background-color: rgba(255,255,255,0.95);" +
-                            "-fx-background-radius: 50px;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(231,76,60,0.8), 15, 0.9, 0, 5);"
-                        );
-                    }
-                } else {
-                    countdownTimerRef[0].stop();
-                    autoDecline.run();
+        final Timeline countdownTimer = new Timeline();
+        countdownTimer.getKeyFrames().add(new KeyFrame(Duration.seconds(1), e -> {
+            countdown[0]--;
+            if (countdown[0] > 0) {
+                countdownLabel.setText(String.valueOf(countdown[0]));
+                if (countdown[0] <= 3) {
+                    countdownLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #FF6B6B; -fx-background-color: rgba(0,0,0,0.25); -fx-background-radius: 20px; -fx-padding: 6px 12px;");
                 }
-            })
-        );
-        countdownTimerRef[0].setCycleCount(10);
-        
-        Timeline countdownTimer = countdownTimerRef[0];
-        
+            } else {
+                countdownTimer.stop();
+                // send decline
+                if (networkClient != null) {
+                    networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", false)));
+                }
+                inviteDialog.close();
+            }
+        }));
+        countdownTimer.setCycleCount(10);
+
         acceptBtn.setOnAction(e -> {
             countdownTimer.stop();
-            networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", true)));
+            if (networkClient != null) {
+                networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", true)));
+            }
             inviteDialog.close();
         });
-        
+
         declineBtn.setOnAction(e -> {
             countdownTimer.stop();
-            autoDecline.run();
+            if (networkClient != null) {
+                networkClient.send(new Message(Protocol.INVITE_RESPONSE, Map.of("fromUser", fromUser, "accepted", false)));
+            }
+            inviteDialog.close();
         });
-        
-        countdownTimer.play();
-        
+
         buttonBox.getChildren().addAll(acceptBtn, declineBtn);
         dialogContent.getChildren().addAll(iconLabel, headerLabel, messageLabel, countdownLabel, buttonBox);
-        
-        Scene dialogScene = new Scene(dialogContent);
+
+        // Initial sizing relative to owner
+        double fracW = 0.42; double fracH = 0.26;
+        double dialogW = Math.max(320, owner.getWidth() * fracW);
+        double dialogH = Math.max(160, owner.getHeight() * fracH);
+
+        Scene dialogScene = new Scene(dialogContent, dialogW, dialogH);
         dialogScene.setFill(Color.TRANSPARENT);
         inviteDialog.setScene(dialogScene);
+
+        // Position centered over owner and keep proportional on resize
+        Runnable positionDialog = () -> {
+            double newW = Math.max(320, owner.getWidth() * fracW);
+            double newH = Math.max(160, owner.getHeight() * fracH);
+            inviteDialog.setWidth(newW);
+            inviteDialog.setHeight(newH);
+            inviteDialog.setX(owner.getX() + (owner.getWidth() - newW) / 2);
+            inviteDialog.setY(owner.getY() + (owner.getHeight() - newH) / 2);
+        };
+
+        // Listeners to keep dialog positioned and hidden when owner minimized
+        javafx.beans.value.ChangeListener<Number> ownerSizeListener = (obs, o, n) -> positionDialog.run();
+        javafx.beans.value.ChangeListener<Number> ownerPosListener = (obs, o, n) -> positionDialog.run();
+        javafx.beans.value.ChangeListener<Boolean> iconifiedListener = (obs, oldv, newv) -> {
+            if (newv) inviteDialog.hide(); else inviteDialog.show();
+        };
+
+        owner.widthProperty().addListener(ownerSizeListener);
+        owner.heightProperty().addListener(ownerSizeListener);
+        owner.xProperty().addListener(ownerPosListener);
+        owner.yProperty().addListener(ownerPosListener);
+        owner.iconifiedProperty().addListener(iconifiedListener);
+
+        inviteDialog.setOnHidden(evt -> {
+            owner.widthProperty().removeListener(ownerSizeListener);
+            owner.heightProperty().removeListener(ownerSizeListener);
+            owner.xProperty().removeListener(ownerPosListener);
+            owner.yProperty().removeListener(ownerPosListener);
+            owner.iconifiedProperty().removeListener(iconifiedListener);
+            countdownTimer.stop();
+        });
+
+        // Show and start countdown
+        positionDialog.run();
         inviteDialog.show();
+        countdownTimer.play();
     }
 
     public void showInviteRejected() {
+        // Create Riot-styled notification dialog attached to owner window
+        Stage owner = (Stage) rootPane.getScene().getWindow();
         Stage notifyDialog = new Stage();
-        notifyDialog.initOwner(rootPane.getScene().getWindow()); // Gắn dialog vào cửa sổ game
-        notifyDialog.initModality(Modality.APPLICATION_MODAL);
-        notifyDialog.setTitle("Thông báo");
+        notifyDialog.initOwner(owner);
+        notifyDialog.initModality(Modality.NONE); // Non-modal để không block UI
+        notifyDialog.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         notifyDialog.setResizable(false);
         
-        VBox notifyContent = new VBox(20);
+        // Riot Games styled notification content
+        VBox notifyContent = new VBox(18);
         notifyContent.setAlignment(Pos.CENTER);
-        notifyContent.setPadding(new Insets(30, 40, 30, 40));
+        notifyContent.setPadding(new Insets(25, 35, 25, 35));
         notifyContent.setStyle(
-            "-fx-background-color: linear-gradient(to bottom right, #f093fb, #f5576c);" +
-            "-fx-background-radius: 15px;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0.8, 0, 5);"
+            "-fx-background-color: linear-gradient(to bottom, rgba(15,25,35,0.98), rgba(5,15,25,0.98));" +
+            "-fx-background-radius: 3px;" +
+            "-fx-border-color: #C33C3C;" + // Riot red border
+            "-fx-border-width: 2px;" +
+            "-fx-border-radius: 3px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 25, 0.9, 0, 8);"
         );
         
-        Label iconLabel = new Label("😔");
-        iconLabel.setStyle("-fx-font-size: 40px;");
+        // Icon with Riot styling
+        Label iconLabel = new Label("✖");
+        iconLabel.setStyle(
+            "-fx-font-size: 48px;" +
+            "-fx-text-fill: #E84A4F;" +
+            "-fx-effect: dropshadow(gaussian, #C33C3C, 15, 0.8, 0, 0);"
+        );
         
-        Label messageLabel = new Label("Lời mời bị từ chối");
-        messageLabel.setStyle(
-            "-fx-font-size: 18px;" +
+        // Title with Riot typography
+        Label titleLabel = new Label("LỜI MỜI BỊ TỪ CHỐI");
+        titleLabel.setStyle(
+            "-fx-font-size: 20px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0.5, 0, 2);"
+            "-fx-text-fill: #F0E6D2;" +
+            "-fx-effect: dropshadow(gaussian, rgba(200,170,110,0.6), 8, 0.7, 0, 2);"
         );
         
-        Button okBtn = new Button("OK");
+        // Message text
+        Label messageLabel = new Label("Đối thủ đã từ chối lời mời của bạn");
+        messageLabel.setStyle(
+            "-fx-font-size: 14px;" +
+            "-fx-text-fill: #C8AA6E;" +
+            "-fx-font-weight: 600;"
+        );
+        
+        // Riot-styled OK button
+        Button okBtn = new Button("XÁC NHẬN");
         okBtn.setStyle(
             "-fx-font-size: 14px;" +
             "-fx-font-weight: bold;" +
-            "-fx-text-fill: white;" +
-            "-fx-background-color: rgba(255,255,255,0.3);" +
-            "-fx-background-radius: 20px;" +
-            "-fx-padding: 10px 25px;" +
+            "-fx-text-fill: #C8AA6E;" +
+            "-fx-background-color: rgba(30,35,40,0.9);" +
+            "-fx-border-color: #785A28;" +
+            "-fx-border-width: 2px;" +
+            "-fx-background-radius: 2px;" +
+            "-fx-border-radius: 2px;" +
+            "-fx-padding: 10px 30px;" +
             "-fx-cursor: hand;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.5, 0, 2);"
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 10, 0.7, 0, 3);"
         );
-        okBtn.setOnAction(e -> notifyDialog.close());
         
-        notifyContent.getChildren().addAll(iconLabel, messageLabel, okBtn);
+        // Auto-close after 3 seconds
+        final Timeline autoClose = new Timeline(new KeyFrame(Duration.seconds(3), e -> {
+            notifyDialog.close();
+        }));
+        autoClose.setCycleCount(1);
         
-        Scene notifyScene = new Scene(notifyContent);
+        okBtn.setOnAction(e -> {
+            autoClose.stop();
+            notifyDialog.close();
+        });
+        
+        notifyContent.getChildren().addAll(iconLabel, titleLabel, messageLabel, okBtn);
+        
+        // Proportional sizing relative to owner (smaller than invite dialog)
+        double fracW = 0.28; // 28% of owner width
+        double fracH = 0.20; // 20% of owner height
+        double dialogW = Math.max(280, owner.getWidth() * fracW);
+        double dialogH = Math.max(180, owner.getHeight() * fracH);
+        
+        Scene notifyScene = new Scene(notifyContent, dialogW, dialogH);
         notifyScene.setFill(Color.TRANSPARENT);
         notifyDialog.setScene(notifyScene);
+        
+        // Position and resize logic
+        Runnable positionDialog = () -> {
+            double newW = Math.max(280, owner.getWidth() * fracW);
+            double newH = Math.max(180, owner.getHeight() * fracH);
+            notifyDialog.setWidth(newW);
+            notifyDialog.setHeight(newH);
+            notifyDialog.setX(owner.getX() + (owner.getWidth() - newW) / 2);
+            notifyDialog.setY(owner.getY() + (owner.getHeight() - newH) / 2);
+        };
+        
+        // Listeners for owner window changes
+        javafx.beans.value.ChangeListener<Number> sizeListener = (obs, o, n) -> positionDialog.run();
+        javafx.beans.value.ChangeListener<Number> posListener = (obs, o, n) -> positionDialog.run();
+        javafx.beans.value.ChangeListener<Boolean> iconifiedListener = (obs, oldv, newv) -> {
+            if (newv) notifyDialog.hide(); else notifyDialog.show();
+        };
+        
+        owner.widthProperty().addListener(sizeListener);
+        owner.heightProperty().addListener(sizeListener);
+        owner.xProperty().addListener(posListener);
+        owner.yProperty().addListener(posListener);
+        owner.iconifiedProperty().addListener(iconifiedListener);
+        
+        // Cleanup listeners when dialog closes
+        notifyDialog.setOnHidden(evt -> {
+            autoClose.stop();
+            owner.widthProperty().removeListener(sizeListener);
+            owner.heightProperty().removeListener(sizeListener);
+            owner.xProperty().removeListener(posListener);
+            owner.yProperty().removeListener(posListener);
+            owner.iconifiedProperty().removeListener(iconifiedListener);
+        });
+        
+        // Show dialog and start auto-close timer
+        positionDialog.run();
         notifyDialog.show();
+        autoClose.play();
     }
 
     private void updateHeaderUserInfo() {

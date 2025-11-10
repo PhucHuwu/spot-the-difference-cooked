@@ -445,69 +445,79 @@ public class GameView {
     }
 
     public void updateFromPayload(Map<?,?> p) {
-        String oldNextTurn = nextTurn;
-        
-        Object scoresObj = p.get("scores");
-        if (scoresObj instanceof Map<?,?> s) {
-            var entries = new ArrayList<>(s.entrySet());
-            if (entries.size() >= 2) {
-                var e1 = (Map.Entry<?,?>) entries.get(0);
-                var e2 = (Map.Entry<?,?>) entries.get(1);
-                playerA = String.valueOf(e1.getKey());
-                playerB = String.valueOf(e2.getKey());
-                scoreA = ((Number)e1.getValue()).intValue();
-                scoreB = ((Number)e2.getValue()).intValue();
-            }
-        }
-        
-        String newNextTurn = p.get("nextTurn") != null ? String.valueOf(p.get("nextTurn")) : nextTurn;
-        boolean turnChanged = !oldNextTurn.isEmpty() && !newNextTurn.equals(oldNextTurn);
-        
-        nextTurn = newNextTurn;
-        
-        if (p.get("remainingTurnMs") != null) {
-            long ms = ((Number)p.get("remainingTurnMs")).longValue();
-            remainingSeconds = (int) Math.max(0, ms / 1000);
+        try {
+            String oldNextTurn = nextTurn;
             
-            countdownTimer.stop();
-            if (remainingSeconds > 0) {
-                countdownTimer.playFromStart();
-            }
-            updateTimerDisplay();
-        }
-        
-        if (p.get("found") instanceof List<?> f) {
-            int oldFoundCount = found.size();
-            found.clear();
-            
-            Map<String,Object> latestFind = null;
-            for (Object o: f) {
-                if (o instanceof Map<?,?> m) {
-                    @SuppressWarnings("unchecked")
-                    Map<String,Object> findMap = (Map<String,Object>) m;
-                    found.add(findMap);
-                    latestFind = findMap;
+            Object scoresObj = p.get("scores");
+            if (scoresObj instanceof Map<?,?> s) {
+                var entries = new ArrayList<>(s.entrySet());
+                if (entries.size() >= 2) {
+                    var e1 = (Map.Entry<?,?>) entries.get(0);
+                    var e2 = (Map.Entry<?,?>) entries.get(1);
+                    playerA = String.valueOf(e1.getKey());
+                    playerB = String.valueOf(e2.getKey());
+                    scoreA = ((Number)e1.getValue()).intValue();
+                    scoreB = ((Number)e2.getValue()).intValue();
                 }
             }
             
-            if (found.size() > oldFoundCount && latestFind != null) {
-                String finder = latestFind.get("finder") != null ? String.valueOf(latestFind.get("finder")) : "";
-                if (finder.equals(myUsername) && audioService != null) {
-                    audioService.playCorrectSound();
-                    System.out.println("Playing correct sound - player found a difference!");
+            String newNextTurn = p.get("nextTurn") != null ? String.valueOf(p.get("nextTurn")) : nextTurn;
+            boolean turnChanged = !oldNextTurn.isEmpty() && !newNextTurn.equals(oldNextTurn);
+            
+            nextTurn = newNextTurn;
+            
+            if (p.get("remainingTurnMs") != null) {
+                long ms = ((Number)p.get("remainingTurnMs")).longValue();
+                remainingSeconds = (int) Math.max(0, ms / 1000);
+                
+                // Stop countdown if game is ending (remainingTurnMs = 0 or negative)
+                if (remainingSeconds <= 0 || ms <= 0) {
+                    countdownTimer.stop();
+                } else {
+                    countdownTimer.stop();
+                    countdownTimer.playFromStart();
                 }
-                justClicked = false;
-            } else if (justClicked && found.size() == oldFoundCount) {
-                if (audioService != null) {
-                    audioService.playWrongSound();
-                    System.out.println("Playing wrong sound - clicked but missed!");
-                }
-                justClicked = false;
-            } else if (turnChanged) {
-                justClicked = false;
+                updateTimerDisplay();
             }
+            
+            if (p.get("found") instanceof List<?> f) {
+                int oldFoundCount = found.size();
+                found.clear();
+                
+                Map<String,Object> latestFind = null;
+                for (Object o: f) {
+                    if (o instanceof Map<?,?> m) {
+                        @SuppressWarnings("unchecked")
+                        Map<String,Object> findMap = (Map<String,Object>) m;
+                        found.add(findMap);
+                        latestFind = findMap;
+                    }
+                }
+                
+                System.out.println("📊 Found differences count: " + found.size() + " (was: " + oldFoundCount + ")");
+                
+                if (found.size() > oldFoundCount && latestFind != null) {
+                    String finder = latestFind.get("finder") != null ? String.valueOf(latestFind.get("finder")) : "";
+                    if (finder.equals(myUsername) && audioService != null) {
+                        audioService.playCorrectSound();
+                        System.out.println("🔊 Playing correct sound - player found a difference!");
+                    }
+                    justClicked = false;
+                } else if (justClicked && found.size() == oldFoundCount) {
+                    if (audioService != null) {
+                        audioService.playWrongSound();
+                        System.out.println("🔊 Playing wrong sound - clicked but missed!");
+                    }
+                    justClicked = false;
+                } else if (turnChanged) {
+                    justClicked = false;
+                }
+            }
+            render();
+        } catch (Exception e) {
+            System.err.println("Error in GameView.updateFromPayload: " + e.getMessage());
+            e.printStackTrace();
         }
-        render();
     }
     
     private void updateTimerDisplay() {
@@ -705,5 +715,16 @@ public class GameView {
             e.printStackTrace();
         }
         render();
+    }
+    
+    public void cleanup() {
+        // Stop all animations and timers
+        if (countdownTimer != null) {
+            countdownTimer.stop();
+        }
+        if (glowAnimation != null) {
+            glowAnimation.stop();
+        }
+        System.out.println("GameView cleanup completed");
     }
 }

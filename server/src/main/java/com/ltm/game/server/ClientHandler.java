@@ -49,6 +49,7 @@ public class ClientHandler implements Runnable {
             if (session.username != null) {
                 lobby.onDisconnect(session);
                 queueService.handleDisconnect(session.username);
+                gameService.handleDisconnect(session.username);
             }
             try { socket.close(); } catch (Exception ignored) {}
         }
@@ -135,6 +136,7 @@ public class ClientHandler implements Runnable {
             Logger.info("User " + session.username + " logged out");
             lobby.onDisconnect(session);
             queueService.handleDisconnect(session.username);
+            gameService.handleDisconnect(session.username);
             session.username = null;
             session.inGame = false;
         }

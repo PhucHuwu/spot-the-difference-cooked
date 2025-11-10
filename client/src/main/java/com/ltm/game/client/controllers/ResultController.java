@@ -1,14 +1,8 @@
 package com.ltm.game.client.controllers;
 
 import com.ltm.game.client.services.AudioService;
-import com.ltm.game.shared.Message;
-import com.ltm.game.shared.Protocol;
-import com.ltm.game.client.services.NetworkClient;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -36,27 +30,14 @@ public class ResultController {
     private Label reasonLabel;
     
     @FXML
-    private StackPane rootPane;
-    
-    @FXML
-    private ImageView bgImageView;
-    
-    @FXML
-    private Pane overlayPane;
+    private javafx.scene.control.Button rematchButton;
 
     private Consumer<Void> onBackToLobby;
     private Consumer<Void> onShowLeaderboard;
-    private Consumer<String> onRematch;
     private AudioService audioService;
-    private NetworkClient networkClient;
-    private String opponentName = "";
 
     public void setAudioService(AudioService service) {
         this.audioService = service;
-    }
-    
-    public void setNetworkClient(NetworkClient client) {
-        this.networkClient = client;
     }
 
     public void setOnBackToLobby(Consumer<Void> callback) {
@@ -66,31 +47,23 @@ public class ResultController {
     public void setOnShowLeaderboard(Consumer<Void> callback) {
         this.onShowLeaderboard = callback;
     }
-    
-    public void setOnRematch(Consumer<String> callback) {
-        this.onRematch = callback;
-    }
-    
-    @FXML
-    private void initialize() {
-        if (bgImageView != null && rootPane != null) {
-            bgImageView.fitWidthProperty().bind(rootPane.widthProperty());
-            bgImageView.fitHeightProperty().bind(rootPane.heightProperty());
-        }
-        
-        if (overlayPane != null && rootPane != null) {
-            overlayPane.prefWidthProperty().bind(rootPane.widthProperty());
-            overlayPane.prefHeightProperty().bind(rootPane.heightProperty());
-        }
-    }
 
     public void setGameResult(Map<?, ?> payload, String myUsername) {
+        System.out.println("🏆 setGameResult called");
+        System.out.println("   Payload: " + payload);
+        System.out.println("   My username: " + myUsername);
+        
         if (audioService != null) {
             audioService.playCelebrationSound();
         }
 
         String reason = String.valueOf(payload.get("reason"));
+        String result = String.valueOf(payload.get("result")); // Winner từ server
         Map<?, ?> scores = (Map<?, ?>) payload.get("scores");
+        
+        System.out.println("   Reason: " + reason);
+        System.out.println("   Result (winner): " + result);
+        System.out.println("   Scores map: " + scores);
         
         int myScore = 0;
         int opponentScore = 0;
@@ -99,51 +72,76 @@ public class ResultController {
         for (var entry : scores.entrySet()) {
             String player = String.valueOf(entry.getKey());
             int score = ((Number) entry.getValue()).intValue();
+            System.out.println("   Player: " + player + ", Score: " + score);
             if (player.equals(myUsername)) {
                 myScore = score;
             } else {
                 opponentName = player;
-                this.opponentName = player;
                 opponentScore = score;
             }
         }
         
-        boolean isWinner = myScore > opponentScore;
-        boolean isDraw = myScore == opponentScore;
+        System.out.println("   My score: " + myScore + ", Opponent score: " + opponentScore);
         
-        if (isDraw) {
-            resultIcon.setText("");
-            resultTitle.setText("Ván này hoà rồi!");
-            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #f39c12;");
-        } else if (isWinner) {
-            resultIcon.setText("");
-            resultTitle.setText("Bạn đỉnh quá!");
-            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #f39c12;");
+        // Ưu tiên kết quả từ server (xử lý cả trường hợp forfeit/quit)
+        boolean isWinner;
+        boolean isDraw;
+        
+        if (result != null && !result.equals("null")) {
+            // Server đã xác định winner (có thể do quit/disconnect)
+            isWinner = result.equals(myUsername);
+            isDraw = result.equals("DRAW");
         } else {
-            resultIcon.setText("");
-            resultTitle.setText("Bạn đã thua!");
-            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #e74c3c;");
+            // Fallback: so sánh điểm (trường hợp server cũ hoặc không có result)
+            isWinner = myScore > opponentScore;
+            isDraw = myScore == opponentScore;
+        }
+        
+        System.out.println("   Is winner: " + isWinner + ", Is draw: " + isDraw);
+        
+        // Apply Riot Games styling based on result
+        if (isDraw) {
+            resultIcon.setText("⚖");
+            resultTitle.setText("HÒA");
+            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #D4C5AA;"); // Light gray-gold
+        } else if (isWinner) {
+            resultIcon.setText("★");
+            resultTitle.setText("CHIẾN THẮNG");
+            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #F0E6D2;"); // Riot cream/white
+        } else {
+            resultIcon.setText("✖");
+            resultTitle.setText("THẤT BẠI");
+            resultTitle.setStyle(resultTitle.getStyle() + "-fx-text-fill: #E84A4F;"); // Bright red
         }
         
         yourNameLabel.setText(myUsername);
         yourScoreLabel.setText(String.valueOf(myScore));
         
-        String scoreColor = isWinner ? "#2ecc71" : (isDraw ? "#f39c12" : "#e74c3c");
+        // Riot color scheme: Bright gold for winner, Bright red for loser, Light gray for draw
+        String scoreColor = isWinner ? "#F0C75E" : (isDraw ? "#D4C5AA" : "#E84A4F");
         yourScoreLabel.setStyle(yourScoreLabel.getStyle() + "-fx-text-fill: " + scoreColor + ";");
         
         oppNameLabel.setText(opponentName);
         oppScoreLabel.setText(String.valueOf(opponentScore));
         
-        String oppScoreColor = !isWinner ? "#2ecc71" : (isDraw ? "#f39c12" : "#e74c3c");
+        String oppScoreColor = !isWinner && !isDraw ? "#F0C75E" : (isDraw ? "#D4C5AA" : "#E84A4F");
         oppScoreLabel.setStyle(oppScoreLabel.getStyle() + "-fx-text-fill: " + oppScoreColor + ";");
         
         String reasonText = "";
         if (reason.equals("all-found")) {
-            reasonText = "🎯 Tất cả điểm khác biệt đã được tìm thấy!";
+            reasonText = "✓ TẤT CẢ ĐIỂM KHÁC BIỆT ĐÃ ĐƯỢC TÌM THẤY";
+        } else if (reason.endsWith("-quit")) {
+            // Hiển thị tên người quit thay vì chỉ nói "đối thủ"
+            String quitter = reason.substring(0, reason.indexOf("-quit"));
+            if (quitter.equals(myUsername)) {
+                reasonText = "» Bạn đã rời khỏi trận đấu";
+            } else {
+                reasonText = "» " + quitter + " đã rời khỏi trận đấu";
+            }
         } else if (reason.equals("quit")) {
-            reasonText = "👋 Đối thủ đã rời khỏi trận đấu";
+            reasonText = "» Đối thủ đã rời khỏi trận đấu";
         } else {
-            reasonText = "✅ Trận đấu kết thúc";
+            reasonText = "✓ TRẬN ĐẤU KẾT THÚC";
         }
         
         reasonLabel.setText(reasonText);
@@ -164,12 +162,10 @@ public class ResultController {
     }
     
     @FXML
-    private void handleRematch() {
-        if (networkClient != null && !opponentName.isEmpty()) {
-            networkClient.send(new Message(Protocol.INVITE_SEND, Map.of("toUser", opponentName)));
-            if (onRematch != null) {
-                onRematch.accept(opponentName);
-            }
+    private void handleContinue() {
+        // Simply go back to lobby
+        if (onBackToLobby != null) {
+            onBackToLobby.accept(null);
         }
     }
 }

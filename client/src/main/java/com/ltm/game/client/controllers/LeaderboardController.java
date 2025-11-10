@@ -8,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
 import java.util.List;
@@ -18,15 +17,6 @@ import java.util.function.Consumer;
 public class LeaderboardController {
     @FXML
     private VBox entriesContainer;
-    
-    @FXML
-    private StackPane rootPane;
-    
-    @FXML
-    private ImageView bgImageView;
-    
-    @FXML
-    private Pane overlayPane;
 
     private NetworkClient networkClient;
     private Consumer<Void> onBack;
@@ -41,16 +31,6 @@ public class LeaderboardController {
 
     @FXML
     private void initialize() {
-        if (bgImageView != null && rootPane != null) {
-            bgImageView.fitWidthProperty().bind(rootPane.widthProperty());
-            bgImageView.fitHeightProperty().bind(rootPane.heightProperty());
-        }
-        
-        if (overlayPane != null && rootPane != null) {
-            overlayPane.prefWidthProperty().bind(rootPane.widthProperty());
-            overlayPane.prefHeightProperty().bind(rootPane.heightProperty());
-        }
-        
         if (networkClient != null) {
             requestLeaderboardData();
         }
@@ -80,76 +60,86 @@ public class LeaderboardController {
             int totalPoints = ((Number) entry.get("totalPoints")).intValue();
             int totalWins = ((Number) entry.get("totalWins")).intValue();
             
-            HBox entryRow = new HBox(15);
+            HBox entryRow = new HBox(18);
             entryRow.setAlignment(Pos.CENTER_LEFT);
-            entryRow.setPadding(new Insets(18, 22, 18, 22));
-            entryRow.setMaxWidth(750);
+            entryRow.setPadding(new Insets(16, 24, 16, 24));
+            entryRow.setMaxWidth(1000);
             
-            String bgColor;
+            // Riot Games color scheme
+            String bgGradient;
+            String borderColor;
             if (rank == 1) {
-                bgColor = "linear-gradient(to right, rgba(255,215,0,0.50), rgba(255,165,0,0.40))";
+                bgGradient = "linear-gradient(to right, rgba(240,199,94,0.25), rgba(200,170,110,0.15))";
+                borderColor = "#C8AA6E"; // Gold
             } else if (rank == 2) {
-                bgColor = "linear-gradient(to right, rgba(192,192,192,0.50), rgba(169,169,169,0.40))";
+                bgGradient = "linear-gradient(to right, rgba(200,200,200,0.22), rgba(169,169,169,0.12))";
+                borderColor = "#C8C8C8"; // Silver
             } else if (rank == 3) {
-                bgColor = "linear-gradient(to right, rgba(205,127,50,0.50), rgba(184,115,51,0.40))";
+                bgGradient = "linear-gradient(to right, rgba(205,127,50,0.22), rgba(184,115,51,0.12))";
+                borderColor = "#CD7F32"; // Bronze
             } else {
-                bgColor = "rgba(30,90,158,0.35)";
+                bgGradient = "linear-gradient(to right, rgba(15,25,35,0.95), rgba(20,35,45,0.90))";
+                borderColor = "#1E5A5A"; // Dark teal
             }
             
             entryRow.setStyle(
-                "-fx-background-color: " + bgColor + ";" +
-                "-fx-background-radius: 30px;" +
-                "-fx-border-color: rgba(255,255,255,0.35);" +
-                "-fx-border-width: 2px;" +
-                "-fx-border-radius: 30px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0.7, 0, 3);"
+                "-fx-background-color: " + bgGradient + ";" +
+                "-fx-background-radius: 3px;" +
+                "-fx-border-color: " + borderColor + ";" +
+                "-fx-border-width: 1.5px;" +
+                "-fx-border-radius: 3px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 12, 0.6, 0, 4);"
             );
             
+            // Rank indicator
             Label rankLabel = new Label();
-            if (rank == 1) {
-                rankLabel.setText("🥇");
-                rankLabel.setStyle("-fx-font-size: 28px;");
-            } else if (rank == 2) {
-                rankLabel.setText("🥈");
-                rankLabel.setStyle("-fx-font-size: 28px;");
-            } else if (rank == 3) {
-                rankLabel.setText("🥉");
-                rankLabel.setStyle("-fx-font-size: 28px;");
+            rankLabel.setMinWidth(45);
+            rankLabel.setAlignment(Pos.CENTER);
+            
+            if (rank <= 3) {
+                String medal;
+                String rankColor;
+                if (rank == 1) {
+                    medal = "①";
+                    rankColor = "#F0C75E"; // Bright gold
+                } else if (rank == 2) {
+                    medal = "②";
+                    rankColor = "#C8C8C8"; // Silver
+                } else {
+                    medal = "③";
+                    rankColor = "#CD7F32"; // Bronze
+                }
+                rankLabel.setText(medal);
+                rankLabel.setStyle(
+                    "-fx-font-size: 32px;" +
+                    "-fx-font-weight: bold;" +
+                    "-fx-text-fill: " + rankColor + ";" +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 8, 0.7, 0, 2);"
+                );
             } else {
                 rankLabel.setText(String.valueOf(rank));
                 rankLabel.setStyle(
-                    "-fx-font-size: 20px;" +
+                    "-fx-font-size: 18px;" +
                     "-fx-font-weight: bold;" +
-                    "-fx-text-fill: white;" +
-                    "-fx-min-width: 32px;" +
-                    "-fx-alignment: center;"
+                    "-fx-text-fill: #8C8C8C;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 5, 0.6, 0, 1);"
                 );
             }
-            rankLabel.setMinWidth(38);
-            rankLabel.setAlignment(Pos.CENTER);
             
-            Label avatarLabel = new Label("👤");
-            avatarLabel.setStyle(
-                "-fx-font-size: 26px;" +
-                "-fx-background-color: rgba(255,255,255,0.25);" +
-                "-fx-background-radius: 28px;" +
-                "-fx-min-width: 52px;" +
-                "-fx-min-height: 52px;" +
-                "-fx-alignment: center;"
-            );
-            
+            // Player name
             Label nameLabel = new Label(playerName);
             nameLabel.setStyle(
-                "-fx-font-size: 19px;" +
+                "-fx-font-size: 18px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: white;" +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 3, 0.7, 0, 2);"
+                "-fx-text-fill: #F0E6D2;" + // Cream text (Riot standard)
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 6, 0.7, 0, 2);"
             );
-            nameLabel.setMinWidth(220);
+            nameLabel.setMinWidth(280);
             
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
             
+            // Points display
             VBox pointsBox = new VBox(2);
             pointsBox.setAlignment(Pos.CENTER);
             
@@ -157,40 +147,43 @@ public class LeaderboardController {
             pointsLabel.setStyle(
                 "-fx-font-size: 22px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #FFD700;" +
-                "-fx-effect: dropshadow(gaussian, rgba(255,215,0,0.6), 4, 0.7, 0, 2);"
+                "-fx-text-fill: #C8AA6E;" + // Riot gold
+                "-fx-effect: dropshadow(gaussian, rgba(200,170,110,0.5), 8, 0.7, 0, 2);"
             );
             
-            Label pointsTextLabel = new Label("điểm");
+            Label pointsTextLabel = new Label("ĐIỂM");
             pointsTextLabel.setStyle(
-                "-fx-font-size: 10px;" +
-                "-fx-text-fill: rgba(255,255,255,0.75);"
+                "-fx-font-size: 9px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-text-fill: rgba(240,230,210,0.6);"
             );
             
             pointsBox.getChildren().addAll(pointsLabel, pointsTextLabel);
             
+            // Wins display
             VBox winsBox = new VBox(2);
             winsBox.setAlignment(Pos.CENTER);
+            winsBox.setPadding(new Insets(0, 0, 0, 15));
             
             Label winsLabel = new Label(String.valueOf(totalWins));
             winsLabel.setStyle(
-                "-fx-font-size: 19px;" +
+                "-fx-font-size: 20px;" +
                 "-fx-font-weight: bold;" +
-                "-fx-text-fill: #4CAF50;" +
-                "-fx-effect: dropshadow(gaussian, rgba(76,175,80,0.5), 3, 0.6, 0, 1);"
+                "-fx-text-fill: #0AC8B9;" + // Riot teal
+                "-fx-effect: dropshadow(gaussian, rgba(10,200,185,0.4), 6, 0.6, 0, 2);"
             );
             
-            Label winsTextLabel = new Label("thắng");
+            Label winsTextLabel = new Label("THẮNG");
             winsTextLabel.setStyle(
-                "-fx-font-size: 10px;" +
-                "-fx-text-fill: rgba(255,255,255,0.75);"
+                "-fx-font-size: 9px;" +
+                "-fx-font-weight: 600;" +
+                "-fx-text-fill: rgba(240,230,210,0.6);"
             );
             
             winsBox.getChildren().addAll(winsLabel, winsTextLabel);
             
             entryRow.getChildren().addAll(
                 rankLabel, 
-                avatarLabel, 
                 nameLabel, 
                 spacer, 
                 pointsBox,

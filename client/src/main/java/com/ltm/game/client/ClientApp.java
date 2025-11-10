@@ -109,10 +109,16 @@ public class ClientApp extends Application {
             loginController = loader.getController();
             loginController.setNetworkClient(networkClient);
             loginController.setOnLoginSuccess((data) -> {
+                System.out.println("[ClientApp] onLoginSuccess triggered for user: " + data.username);
                 this.username = data.username;
                 this.totalPoints = data.totalPoints;
                 this.totalWins = data.totalWins;
-                showLobby();
+                try {
+                    showLobby();
+                } catch (Exception e) {
+                    System.err.println("[ClientApp] Error while showing lobby:");
+                    e.printStackTrace();
+                }
             });
 
             stage.setScene(scene);
@@ -123,11 +129,14 @@ public class ClientApp extends Application {
 
     private void showLobby() {
         try {
+            System.out.println("[ClientApp] showLobby() called - starting to load lobby scene");
             audioService.stopGameMusic();
             audioService.playLobbyMusic();
 
+            System.out.println("[ClientApp] Loading lobby FXML...");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/lobby.fxml"));
             Scene scene = new Scene(loader.load());
+            System.out.println("[ClientApp] Lobby FXML loaded successfully");
 
             lobbyController = loader.getController();
             lobbyController.setNetworkClient(networkClient);
@@ -143,7 +152,9 @@ public class ClientApp extends Application {
 
             lobbyController.setOnShowLeaderboard(v -> showLeaderboard());
 
+            System.out.println("[ClientApp] Setting lobby scene on stage...");
             stage.setScene(scene);
+            System.out.println("[ClientApp] Lobby scene set successfully!");
 
             if (pendingLobbyList != null) {
                 lobbyController.updateLobbyList(pendingLobbyList);
@@ -153,6 +164,8 @@ public class ClientApp extends Application {
             networkClient.send(new Message(Protocol.LOBBY_REQUEST, null));
             lobbyController.requestLeaderboardData();
         } catch (Exception e) {
+            System.err.println("[ClientApp] CRITICAL ERROR in showLobby():");
+            e.printStackTrace();
             throw new RuntimeException("Failed to load lobby screen", e);
         }
     }
@@ -180,24 +193,27 @@ public class ClientApp extends Application {
 
     private void showResult(Map<?, ?> payload) {
         try {
+            System.out.println("🎬 showResult() called");
             // Stop all game audio when showing result
             audioService.stopAll();
             
+            System.out.println("   Loading result.fxml...");
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/result.fxml"));
             Scene scene = new Scene(loader.load());
 
+            System.out.println("   Setting up result controller...");
             resultController = loader.getController();
             resultController.setAudioService(audioService);
-            resultController.setNetworkClient(networkClient);
             resultController.setOnBackToLobby(v -> showLobby());
             resultController.setOnShowLeaderboard(v -> showLeaderboard());
-            resultController.setOnRematch(opponent -> {
-                showLobby();
-            });
             resultController.setGameResult(payload, username);
 
+            System.out.println("   Setting stage scene...");
             stage.setScene(scene);
+            System.out.println("✅ Result screen loaded successfully");
         } catch (Exception e) {
+            System.err.println("❌ Failed to load result screen: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("Failed to load result screen", e);
         }
     }
@@ -294,15 +310,29 @@ public class ClientApp extends Application {
                     }
                 }
                 case Protocol.GAME_UPDATE -> {
+                    System.out.println("📥 Received GAME_UPDATE");
                     if (gameView != null) {
                         gameView.updateFromPayload((Map<?, ?>) msg.payload);
                     }
                 }
                 case Protocol.GAME_END -> {
-                    if (gameView != null) {
-                        gameView.updateFromPayload((Map<?, ?>) msg.payload);
+                    System.out.println("📥 Received GAME_END - transitioning to result screen");
+                    System.out.println("   Payload: " + msg.payload);
+                    try {
+                        if (gameView != null) {
+                            System.out.println("   Updating game view one last time...");
+                            gameView.updateFromPayload((Map<?, ?>) msg.payload);
+                            // Cleanup game resources before showing result
+                            System.out.println("   Cleaning up game view...");
+                            gameView.cleanup();
+                        }
+                    } catch (Exception e) {
+                        System.err.println("❌ Error updating game view on game end: " + e.getMessage());
+                        e.printStackTrace();
                     }
+                    System.out.println("   Showing result screen...");
                     showResult((Map<?, ?>) msg.payload);
+                    System.out.println("✅ Result screen should now be visible");
                 }
                 case Protocol.LEADERBOARD -> {
                     @SuppressWarnings("unchecked")
