@@ -725,6 +725,20 @@ public class GameView {
         if (glowAnimation != null) {
             glowAnimation.stop();
         }
+        
+        // Khi game kết thúc, hiển thị "Your turn" thay vì "Lượt của bạn"
+        turnIndicator.setText("YOUR TURN");
+        turnIndicator.setStyle(
+            "-fx-font-family: 'Arial Black', sans-serif;" +
+            "-fx-font-size: 24px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: #FFFFFF;" +
+            "-fx-padding: 8px 40px;" +
+            "-fx-background-color: linear-gradient(to right, #0ac8b9, #0077d4);" +
+            "-fx-background-radius: 25px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(10,200,185,0.9), 20, 0.8, 0, 0);"
+        );
+        
         System.out.println("GameView cleanup hoàn thành");
     }
 }

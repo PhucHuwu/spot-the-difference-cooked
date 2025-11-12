@@ -54,7 +54,7 @@ public class ImageSetRepository {
         }
         
         byte[] bytes = Files.readAllBytes(p);
-        System.out.println("✓ Loaded " + bytes.length + " bytes from " + p.toAbsolutePath());
+        System.out.println("Loaded " + bytes.length + " bytes from " + p.toAbsolutePath());
         return bytes;
     }
 
