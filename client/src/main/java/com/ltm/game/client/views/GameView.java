@@ -160,7 +160,7 @@ public class GameView {
                 mappedY = ly * (imgH / boxSize);
                 System.out.println("Click ô trái - chuyển đổi sang tọa độ ảnh: (" + mappedX + ", " + mappedY + ")");
             } else if (x >= boxX2 && x <= boxX2 + boxSize && y >= boxY && y <= boxY + boxSize) {
-                System.out.println("Click ô phải (ảnh gốc) - bỏ qua");
+                System.out.println("Click ô phải - bỏ qua");
                 return;
             }
             

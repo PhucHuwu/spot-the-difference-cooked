@@ -129,12 +129,14 @@
                 </HBox>
                 
                 <!-- Action Buttons - Riot style -->
-                <HBox alignment="CENTER" spacing="30" style="-fx-padding: 25px 0 0 0;">
+                <HBox alignment="CENTER" spacing="30" fillHeight="false" style="-fx-padding: 25px 0 0 0;">
                     
                     <Button fx:id="rematchButton"
                             text="TIẾP TỤC"
                             onAction="#handleContinue"
                             minWidth="240"
+                            maxWidth="240"
+                            alignment="CENTER"
                             style="-fx-font-size: 15px; 
                                    -fx-font-weight: bold;
                                    -fx-padding: 16px 40px; 
@@ -145,11 +147,15 @@
                                    -fx-background-radius: 2px;
                                    -fx-border-radius: 2px; 
                                    -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, rgba(10,200,185,0.6), 15, 0.8, 0, 5);"/>
+                                   -fx-effect: dropshadow(gaussian, rgba(10,200,185,0.6), 15, 0.8, 0, 5);
+                                   -fx-alignment: center;"/>
                     
-                    <Button text="BẢNG XẾP HẠNG"
+                    <Button fx:id="leaderboardButton"
+                            text="BẢNG XẾP HẠNG"
                             onAction="#handleViewLeaderboard"
                             minWidth="240"
+                            maxWidth="240"
+                            alignment="CENTER"
                             style="-fx-font-size: 15px; 
                                    -fx-font-weight: bold;
                                    -fx-padding: 16px 40px; 
@@ -160,7 +166,8 @@
                                    -fx-background-radius: 2px;
                                    -fx-border-radius: 2px; 
                                    -fx-cursor: hand;
-                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0.7, 0, 4);"/>
+                                   -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0.7, 0, 4);
+                                   -fx-alignment: center;"/>
                 </HBox>
             </VBox>
         </center>
