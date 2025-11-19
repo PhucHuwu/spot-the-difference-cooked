@@ -12,7 +12,7 @@ public class QueueService {
     private final LobbyService lobbyService;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    // Track match acceptance: matchId -> Set of players who accepted
+    // Theo dõi việc chấp nhận trận đấu: matchId -> Tập hợp người chơi đã chấp nhận
     private final ConcurrentHashMap<String, ConcurrentHashMap<String, Boolean>> pendingMatches = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, ScheduledFuture<?>> matchTimeouts = new ConcurrentHashMap<>();
 
@@ -24,13 +24,13 @@ public class QueueService {
 
     public void joinQueue(String username) {
         try (Connection c = Database.getConnection()) {
-            // Remove any existing entry
+            // Xóa bất kỳ mục nào đã tồn tại
             try (PreparedStatement ps = c.prepareStatement("DELETE FROM matchmaking_queue WHERE username = ?")) {
                 ps.setString(1, username);
                 ps.executeUpdate();
             }
 
-            // Add to queue
+            // Thêm vào hàng đợi
             try (PreparedStatement ps = c.prepareStatement(
                     "INSERT INTO matchmaking_queue (username, status) VALUES (?, 'waiting')")) {
                 ps.setString(1, username);
@@ -84,7 +84,7 @@ public class QueueService {
 
     private void tryMatchmaking() {
         try (Connection c = Database.getConnection()) {
-            // Get 2 waiting players
+            // Lấy 2 người chơi đang chờ
         try (PreparedStatement ps = c.prepareStatement(
             "SELECT username FROM matchmaking_queue WHERE status = 'waiting' ORDER BY join_time LIMIT 2")) {
                 try (ResultSet rs = ps.executeQuery()) {
@@ -109,7 +109,7 @@ public class QueueService {
     }
 
     private void matchPlayers(Connection c, String player1, String player2) throws Exception {
-        // Mark as matched
+        // Đánh dấu là đã ghép đôi
         try (PreparedStatement ps = c.prepareStatement(
                 "UPDATE matchmaking_queue SET status = 'matched' WHERE username IN (?, ?)")) {
             ps.setString(1, player1);
@@ -120,14 +120,14 @@ public class QueueService {
         String matchId = player1 + "_vs_" + player2;
         Logger.info("[QUEUE] Matched: " + player1 + " vs " + player2 + " (matchId: " + matchId + ")");
 
-        // Track this pending match
+        // Theo dõi trận đấu đang chờ xử lý này
         ConcurrentHashMap<String, Boolean> acceptanceMap = new ConcurrentHashMap<>();
         acceptanceMap.put(player1, false);
         acceptanceMap.put(player2, false);
         pendingMatches.put(matchId, acceptanceMap);
         Logger.info("[MATCH] Created acceptance map: " + acceptanceMap + " for matchId: " + matchId);
 
-        // Notify both players
+        // Thông báo cho cả hai người chơi
         ClientSession s1 = lobbyService.getOnline(player1);
         ClientSession s2 = lobbyService.getOnline(player2);
 
@@ -138,7 +138,7 @@ public class QueueService {
             s2.send(new Message(Protocol.QUEUE_MATCHED, Map.of("opponent", player1, "matchId", matchId)).toJson());
         }
 
-        // Set timeout for match acceptance (10 seconds)
+        // Đặt thời gian chờ cho việc chấp nhận trận đấu (10 giây)
         ScheduledFuture<?> timeoutTask = scheduler.schedule(() -> {
             handleMatchTimeout(matchId, player1, player2);
         }, 10, TimeUnit.SECONDS);
@@ -149,7 +149,7 @@ public class QueueService {
     public void handleMatchAccept(String username) {
         Logger.info("[MATCH] " + username + " accepted match");
 
-        // Find which match this player is in
+        // Tìm trận đấu mà người chơi này đang tham gia
         for (Map.Entry<String, ConcurrentHashMap<String, Boolean>> entry : pendingMatches.entrySet()) {
             String matchId = entry.getKey();
             ConcurrentHashMap<String, Boolean> acceptanceMap = entry.getValue();
@@ -158,25 +158,25 @@ public class QueueService {
                 acceptanceMap.put(username, true);
                 Logger.info("[MATCH] Acceptance map after " + username + " accepted: " + acceptanceMap);
 
-                // Check if both players accepted
+                // Kiểm tra xem cả hai người chơi đã chấp nhận chưa
                 boolean allAccepted = acceptanceMap.size() == 2 && acceptanceMap.values().stream().allMatch(accepted -> accepted);
                 Logger.info("[MATCH] All accepted check: " + allAccepted + " (size: " + acceptanceMap.size() + ", values: " + acceptanceMap + ")");
 
                 if (allAccepted) {
-                    // Both accepted - notify both players to start countdown!
+                    // Cả hai đã chấp nhận - thông báo cho cả hai người chơi bắt đầu đếm ngược!
                     String[] players = matchId.split("_vs_");
                     String player1 = players[0];
                     String player2 = players[1];
 
                     Logger.info("[MATCH] Both players accepted. Sending MATCH_READY: " + matchId);
 
-                    // Cancel the 10s timeout (for acceptance)
+                    // Hủy thời gian chờ 10s (cho việc chấp nhận)
                     ScheduledFuture<?> timeout = matchTimeouts.remove(matchId);
                     if (timeout != null) {
                         timeout.cancel(false);
                     }
 
-                    // Notify BOTH players that match is ready (start countdown)
+                    // Thông báo cho CẢ HAI người chơi rằng trận đấu đã sẵn sàng (bắt đầu đếm ngược)
                     ClientSession s1 = lobbyService.getOnline(player1);
                     ClientSession s2 = lobbyService.getOnline(player2);
 
@@ -187,12 +187,12 @@ public class QueueService {
                         s2.send(new Message(Protocol.MATCH_READY, Map.of()).toJson());
                     }
 
-                    // Start game after 11 seconds delay (countdown time: 10→0)
+                    // Bắt đầu trò chơi sau 11 giây trễ (thời gian đếm ngược: 10→0)
                     new Thread(() -> {
                         try {
-                            Thread.sleep(11000); // 11 seconds to match countdown sound
+                            Thread.sleep(11000); // 11 giây để khớp với âm thanh đếm ngược
 
-                            // Double-check match still exists (not declined during 11s delay)
+                            // Kiểm tra lại trận đấu vẫn tồn tại (không bị từ chối trong 11s trễ)
                             if (!pendingMatches.containsKey(matchId)) {
                                 Logger.info("[MATCH] Match " + matchId + " was cancelled during 11s delay. Not starting game.");
                                 return;
@@ -200,7 +200,7 @@ public class QueueService {
 
                             gameService.startGame(player1, player2);
 
-                            // Clean up
+                            // Dọn dẹp
                             pendingMatches.remove(matchId);
                             removeFromQueue(player1);
                             removeFromQueue(player2);
@@ -209,7 +209,7 @@ public class QueueService {
                         }
                     }).start();
                 } else {
-                    // Only one player accepted so far - show waiting screen
+                    // Chỉ một người chơi chấp nhận cho đến nay - hiển thị màn hình chờ
                     ClientSession acceptingSession = lobbyService.getOnline(username);
                     if (acceptingSession != null) {
                         acceptingSession.send(new Message(Protocol.MATCH_WAITING, Map.of()).toJson());
@@ -223,7 +223,7 @@ public class QueueService {
     public void handleMatchDecline(String username) {
         Logger.info("[MATCH] " + username + " declined match");
 
-        // Find which match this player is in
+        // Tìm trận đấu mà người chơi này đang tham gia
         for (Map.Entry<String, ConcurrentHashMap<String, Boolean>> entry : pendingMatches.entrySet()) {
             String matchId = entry.getKey();
             ConcurrentHashMap<String, Boolean> acceptanceMap = entry.getValue();
@@ -234,23 +234,23 @@ public class QueueService {
                 String player2 = players[1];
                 String otherPlayer = username.equals(player1) ? player2 : player1;
 
-                // Cancel timeout
+                // Hủy thời gian chờ
                 ScheduledFuture<?> timeout = matchTimeouts.remove(matchId);
                 if (timeout != null) {
                     timeout.cancel(false);
                 }
 
-                // Notify other player
+                // Thông báo cho người chơi khác
                 ClientSession otherSession = lobbyService.getOnline(otherPlayer);
                 if (otherSession != null) {
                     otherSession.send(new Message(Protocol.MATCH_DECLINE,
                         Map.of("decliner", username)).toJson());
                 }
 
-                // Clean up
+                // Dọn dẹp
                 pendingMatches.remove(matchId);
 
-                // REMOVE both players from queue (not reset to waiting)
+                // XÓA cả hai người chơi khỏi hàng đợi (không đặt lại về trạng thái chờ)
                 removeFromQueue(player1);
                 removeFromQueue(player2);
                 
@@ -264,17 +264,17 @@ public class QueueService {
     private void handleMatchTimeout(String matchId, String player1, String player2) {
         ConcurrentHashMap<String, Boolean> acceptanceMap = pendingMatches.get(matchId);
         if (acceptanceMap == null) {
-            return; // Already handled
+            return; // Đã được xử lý
         }
 
         Logger.info("[MATCH] Timeout for match: " + matchId);
 
-        // Check who didn't accept
+        // Kiểm tra ai chưa chấp nhận
         boolean p1Accepted = acceptanceMap.getOrDefault(player1, false);
         boolean p2Accepted = acceptanceMap.getOrDefault(player2, false);
 
         if (!p1Accepted || !p2Accepted) {
-            // Send timeout notification to both players
+            // Gửi thông báo hết thời gian chờ cho cả hai người chơi
             ClientSession s1 = lobbyService.getOnline(player1);
             ClientSession s2 = lobbyService.getOnline(player2);
 
@@ -287,11 +287,11 @@ public class QueueService {
                     Map.of("reason", "timeout")).toJson());
             }
 
-            // Clean up
+            // Dọn dẹp
             pendingMatches.remove(matchId);
             matchTimeouts.remove(matchId);
 
-            // REMOVE both players from queue (not reset to waiting)
+            // XÓA cả hai người chơi khỏi hàng đợi (không đặt lại về trạng thái chờ)
             removeFromQueue(player1);
             removeFromQueue(player2);
             
@@ -321,15 +321,15 @@ public class QueueService {
     }
 
     /**
-     * Handle player disconnect - clean up queue and pending matches
+     * Xử lý ngắt kết nối của người chơi - dọn dẹp hàng đợi và trận đấu đang chờ
      */
     public void handleDisconnect(String username) {
         Logger.info("[QUEUE] Handling disconnect for: " + username);
 
-        // Remove from queue
+        // Xóa khỏi hàng đợi
         removeFromQueue(username);
 
-        // Check if player is in any pending match
+        // Kiểm tra nếu người chơi đang trong bất kỳ trận đấu đang chờ nào
         for (Map.Entry<String, ConcurrentHashMap<String, Boolean>> entry : pendingMatches.entrySet()) {
             String matchId = entry.getKey();
             ConcurrentHashMap<String, Boolean> acceptanceMap = entry.getValue();
@@ -342,23 +342,23 @@ public class QueueService {
 
                 Logger.info("[QUEUE] Player " + username + " disconnected during match " + matchId);
 
-                // Cancel timeout
+                // Hủy thời gian chờ
                 ScheduledFuture<?> timeout = matchTimeouts.remove(matchId);
                 if (timeout != null) {
                     timeout.cancel(false);
                 }
 
-                // Notify other player
+                // Thông báo cho người chơi khác
                 ClientSession otherSession = lobbyService.getOnline(otherPlayer);
                 if (otherSession != null) {
                     otherSession.send(new Message(Protocol.MATCH_DECLINE,
                         Map.of("reason", "disconnect", "decliner", username)).toJson());
                 }
 
-                // Clean up
+                // Dọn dẹp
                 pendingMatches.remove(matchId);
 
-                // REMOVE other player from queue (not reset to waiting)
+                // XÓA người chơi khác khỏi hàng đợi (không đặt lại về trạng thái chờ)
                 removeFromQueue(otherPlayer);
                 
                 Logger.info("[MATCH] Removed other player from queue after disconnect");

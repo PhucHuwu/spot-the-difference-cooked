@@ -66,21 +66,22 @@
                 </VBox>
                 
                 <!-- Leaderboard Table -->
-                <ScrollPane fitToWidth="true"
-                            VBox.vgrow="ALWAYS"
-                            style="-fx-background-color: transparent; 
-                                   -fx-background: transparent;"
-                            hbarPolicy="NEVER"
-                            vbarPolicy="AS_NEEDED">
-                    <VBox fx:id="entriesContainer"
-                          spacing="8"
-                          alignment="TOP_CENTER"
-                          maxWidth="1000">
-                        <padding>
-                            <Insets top="10" right="20" bottom="20" left="20"/>
-                        </padding>
-                    </VBox>
-                </ScrollPane>
+                <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                    <ScrollPane fitToWidth="false"
+                                style="-fx-background-color: transparent; 
+                                       -fx-background: transparent;"
+                                hbarPolicy="NEVER"
+                                vbarPolicy="AS_NEEDED">
+                        <VBox fx:id="entriesContainer"
+                              spacing="8"
+                              alignment="TOP_CENTER"
+                              maxWidth="1000">
+                            <padding>
+                                <Insets top="10" right="20" bottom="20" left="20"/>
+                            </padding>
+                        </VBox>
+                    </ScrollPane>
+                </HBox>
             </VBox>
         </center>
     </BorderPane>

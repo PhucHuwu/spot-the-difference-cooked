@@ -31,10 +31,88 @@ public class ResultController {
     
     @FXML
     private javafx.scene.control.Button rematchButton;
+    
+    @FXML
+    private javafx.scene.control.Button leaderboardButton;
 
     private Consumer<Void> onBackToLobby;
     private Consumer<Void> onShowLeaderboard;
     private AudioService audioService;
+
+    @FXML
+    private void initialize() {
+        // Thiết lập hover effects cho nút TIẾP TỤC
+        if (rematchButton != null) {
+            setupContinueButtonEffects();
+        }
+        
+        // Thiết lập hover effects cho nút BẢNG XẾP HẠNG
+        if (leaderboardButton != null) {
+            setupLeaderboardButtonEffects();
+        }
+    }
+
+    private void setupContinueButtonEffects() {
+        String originalStyle = "-fx-font-size: 15px; " +
+                "-fx-font-weight: bold;" +
+                "-fx-padding: 16px 40px; " +
+                "-fx-background-color: linear-gradient(to bottom, #0AC8B9, #0397AB);" +
+                "-fx-text-fill: #0A1428; " +
+                "-fx-border-color: #0AC8B9;" +
+                "-fx-border-width: 2px;" +
+                "-fx-background-radius: 2px;" +
+                "-fx-border-radius: 2px; " +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(10,200,185,0.6), 15, 0.8, 0, 5);" +
+                "-fx-alignment: center;";
+
+        String hoverStyle = "-fx-font-size: 15px; " +
+                "-fx-font-weight: bold;" +
+                "-fx-padding: 16px 40px; " +
+                "-fx-background-color: linear-gradient(to bottom, #0BDCC8, #04A5B8);" +
+                "-fx-text-fill: #0A1428; " +
+                "-fx-border-color: #0BDCC8;" +
+                "-fx-border-width: 2px;" +
+                "-fx-background-radius: 2px;" +
+                "-fx-border-radius: 2px; " +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(11,220,200,0.8), 18, 0.9, 0, 6);" +
+                "-fx-alignment: center;";
+
+        rematchButton.setOnMouseEntered(e -> rematchButton.setStyle(hoverStyle));
+        rematchButton.setOnMouseExited(e -> rematchButton.setStyle(originalStyle));
+    }
+
+    private void setupLeaderboardButtonEffects() {
+        String originalStyle = "-fx-font-size: 15px; " +
+                "-fx-font-weight: bold;" +
+                "-fx-padding: 16px 40px; " +
+                "-fx-background-color: rgba(30,35,40,0.9);" +
+                "-fx-text-fill: #C8AA6E; " +
+                "-fx-border-color: #785A28;" +
+                "-fx-border-width: 2px;" +
+                "-fx-background-radius: 2px;" +
+                "-fx-border-radius: 2px; " +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0.7, 0, 4);" +
+                "-fx-alignment: center;";
+
+        String hoverStyle = "-fx-font-size: 15px; " +
+                "-fx-font-weight: bold;" +
+                "-fx-padding: 16px 40px; " +
+                "-fx-background-color: rgba(40,45,50,0.95);" +
+                "-fx-text-fill: #F0C75E; " +
+                "-fx-border-color: #C8AA6E;" +
+                "-fx-border-width: 2px;" +
+                "-fx-background-radius: 2px;" +
+                "-fx-border-radius: 2px; " +
+                "-fx-cursor: hand;" +
+                "-fx-effect: dropshadow(gaussian, rgba(200,170,110,0.4), 15, 0.8, 0, 5);" +
+                "-fx-alignment: center;";
+
+        leaderboardButton.setOnMouseEntered(e -> leaderboardButton.setStyle(hoverStyle));
+        leaderboardButton.setOnMouseExited(e -> leaderboardButton.setStyle(originalStyle));
+    }
 
     public void setAudioService(AudioService service) {
         this.audioService = service;

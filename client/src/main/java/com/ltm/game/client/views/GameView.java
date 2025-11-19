@@ -74,6 +74,7 @@ public class GameView {
             audioService.loadGameSounds();
         }
         
+        
         ImageView bgImageView = new ImageView();
         try {
             Image bgImage = new Image(getClass().getResourceAsStream("/images/v2/forest-8227410.jpg"));
@@ -82,26 +83,31 @@ public class GameView {
             bgImageView.fitWidthProperty().bind(root.widthProperty());
             bgImageView.fitHeightProperty().bind(root.heightProperty());
         } catch (Exception e) {
-            System.err.println("Could not load background image: " + e.getMessage());
+            System.err.println("Không thể tải ảnh nền: " + e.getMessage());
         }
+        
         
         Pane overlay = new Pane();
         overlay.setStyle("-fx-background-color: rgba(10,15,25,0.75);");
         overlay.prefWidthProperty().bind(root.widthProperty());
         overlay.prefHeightProperty().bind(root.heightProperty());
         
+        
         BorderPane mainLayout = new BorderPane();
         mainLayout.setStyle("-fx-background-color: transparent;");
         
+        
         VBox header = createRiotStyleHeader();
         mainLayout.setTop(header);
+        
         
         VBox centerContainer = new VBox(15);
         centerContainer.setAlignment(Pos.CENTER);
         centerContainer.setPadding(new Insets(10, 15, 15, 15));
         
+        
         turnIndicator.setStyle(
-            "-fx-font-family: 'Arial Black', sans-serif;" +
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 24px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #FFFFFF;" +
@@ -116,6 +122,7 @@ public class GameView {
         
         root.getChildren().addAll(bgImageView, overlay, mainLayout);
         
+        
         countdownTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             if (remainingSeconds > 0) {
                 remainingSeconds--;
@@ -124,38 +131,43 @@ public class GameView {
         }));
         countdownTimer.setCycleCount(Timeline.INDEFINITE);
         
+        
         setupBorderGlowAnimation();
+        
         
         drawBase();
         
+        
         canvas.setOnMouseClicked(e -> {
+            
             if (!nextTurn.equals(myUsername)) {
-                System.out.println("Not your turn! Current turn: " + nextTurn);
+                System.out.println("Không phải lượt của bạn! Lượt hiện tại: " + nextTurn);
                 return;
             }
             
             double x = e.getX();
             double y = e.getY();
-            System.out.println("Canvas clicked at: (" + x + ", " + y + ")");
+            System.out.println("Canvas được click tại: (" + x + ", " + y + ")");
             Double mappedX = null, mappedY = null;
+            
             
             if (x >= boxX1 && x <= boxX1 + boxSize && y >= boxY && y <= boxY + boxSize) {
                 double lx = x - boxX1; double ly = y - boxY;
                 mappedX = lx * (imgW / boxSize);
                 mappedY = ly * (imgH / boxSize);
-                System.out.println("Left box clicked - mapped to image coords: (" + mappedX + ", " + mappedY + ")");
+                System.out.println("Click ô trái - chuyển đổi sang tọa độ ảnh: (" + mappedX + ", " + mappedY + ")");
             } else if (x >= boxX2 && x <= boxX2 + boxSize && y >= boxY && y <= boxY + boxSize) {
-                System.out.println("Right box (original image) clicked - ignoring");
+                System.out.println("Click ô phải - bỏ qua");
                 return;
             }
             
             if (mappedX != null) {
-                System.out.println("Sending onClick callback with coords: (" + mappedX + ", " + mappedY + ")");
+                System.out.println("Gửi callback onClick với tọa độ: (" + mappedX + ", " + mappedY + ")");
                 justClicked = true;
                 render();
                 onClick.accept(mappedX, mappedY);
             } else {
-                System.out.println("Click outside image boxes - ignoring");
+                System.out.println("Click bên ngoài vùng ảnh - bỏ qua");
             }
         });
     }
@@ -169,14 +181,18 @@ public class GameView {
             "-fx-border-width: 0 0 2 0;"
         );
         
+        
         HBox topRow = new HBox(20);
         topRow.setAlignment(Pos.CENTER);
         topRow.setPadding(new Insets(5, 0, 10, 0));
         
+        
         HBox playerABox = createPlayerBox(playerAAvatar, playerANameLabel, playerAScoreLabel, true);
+        
         
         VBox centerBox = new VBox(5);
         centerBox.setAlignment(Pos.CENTER);
+        
         
         timerBox.setMinSize(80, 80);
         timerBox.setMaxSize(80, 80);
@@ -190,7 +206,7 @@ public class GameView {
         );
         
         timerLabel.setStyle(
-            "-fx-font-family: 'Arial Black', sans-serif;" +
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 32px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #0ac8b9;" +
@@ -200,7 +216,7 @@ public class GameView {
         
         Label vsLabel = new Label("VS");
         vsLabel.setStyle(
-            "-fx-font-family: 'Impact', 'Arial Black', sans-serif;" +
+            "-fx-font-family: 'Impact', 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 20px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #ff4654;" +
@@ -209,6 +225,7 @@ public class GameView {
         
         centerBox.getChildren().addAll(timerBox, vsLabel);
         
+        
         HBox playerBBox = createPlayerBox(playerBAvatar, playerBNameLabel, playerBScoreLabel, false);
         
         Region leftSpacer = new Region();
@@ -216,9 +233,10 @@ public class GameView {
         HBox.setHgrow(leftSpacer, Priority.ALWAYS);
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
         
+        
         javafx.scene.control.Button quitButton = new javafx.scene.control.Button("✖ THOÁT");
         quitButton.setStyle(
-            "-fx-font-family: 'Arial Black', sans-serif;" +
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 14px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #ffffff;" +
@@ -232,7 +250,7 @@ public class GameView {
             "-fx-effect: dropshadow(gaussian, rgba(232,64,87,0.6), 10, 0.7, 0, 3);"
         );
         quitButton.setOnMouseEntered(e -> quitButton.setStyle(
-            "-fx-font-family: 'Arial Black', sans-serif;" +
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 14px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #ffffff;" +
@@ -246,7 +264,7 @@ public class GameView {
             "-fx-effect: dropshadow(gaussian, rgba(255,84,108,0.9), 15, 0.8, 0, 0);"
         ));
         quitButton.setOnMouseExited(e -> quitButton.setStyle(
-            "-fx-font-family: 'Arial Black', sans-serif;" +
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 14px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #ffffff;" +
@@ -284,6 +302,7 @@ public class GameView {
             "-fx-border-width: 1;"
         );
         
+        
         avatar.setFill(new LinearGradient(
             0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
             new Stop(0, Color.web("#667eea")),
@@ -293,14 +312,16 @@ public class GameView {
         avatar.setStrokeWidth(2.5);
         avatar.setEffect(new DropShadow(15, Color.web("#667eea", 0.6)));
         
+        
         nameLabel.setStyle(
-            "-fx-font-family: 'Arial', sans-serif;" +
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 16px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #FFFFFF;" +
             "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 3, 0.7, 0, 1);"
         );
         nameLabel.setText("Player");
+        
         
         StackPane scoreBox = new StackPane();
         scoreBox.setStyle(
@@ -311,7 +332,7 @@ public class GameView {
         );
         
         scoreLabel.setStyle(
-            "-fx-font-family: 'Arial Black', sans-serif;" +
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
             "-fx-font-size: 18px;" +
             "-fx-font-weight: bold;" +
             "-fx-text-fill: #FFFFFF;" +
@@ -333,6 +354,8 @@ public class GameView {
     }
     
     private void setupBorderGlowAnimation() {
+        
+        
         glowAnimation = new Timeline(
             new KeyFrame(Duration.ZERO, 
                 new KeyValue(timerBox.scaleXProperty(), 1.0),
@@ -353,15 +376,19 @@ public class GameView {
     private void drawBase() {
         GraphicsContext g = canvas.getGraphicsContext2D();
         
+        
         g.setFill(Color.TRANSPARENT);
         g.fillRect(0, 0, 900, 450);
+        
         
         drawHexagonalFrame(g, boxX1, boxY, boxSize);
         drawHexagonalFrame(g, boxX2, boxY, boxSize);
         
+        
         g.setFill(Color.WHITE);
         g.fillRoundRect(boxX1, boxY, boxSize, boxSize, 15, 15);
         g.fillRoundRect(boxX2, boxY, boxSize, boxSize, 15, 15);
+        
         
         if (leftImg != null) {
             g.save();
@@ -401,6 +428,7 @@ public class GameView {
     }
     
     private void drawHexagonalFrame(GraphicsContext g, double x, double y, double size) {
+        
         double padding = 12;
         g.setStroke(Color.web("#0ac8b9", 0.3));
         g.setLineWidth(8);
@@ -437,6 +465,7 @@ public class GameView {
                 long ms = ((Number)p.get("remainingTurnMs")).longValue();
                 remainingSeconds = (int) Math.max(0, ms / 1000);
                 
+                
                 if (remainingSeconds <= 0 || ms <= 0) {
                     countdownTimer.stop();
                 } else {
@@ -466,13 +495,13 @@ public class GameView {
                     String finder = latestFind.get("finder") != null ? String.valueOf(latestFind.get("finder")) : "";
                     if (finder.equals(myUsername) && audioService != null) {
                         audioService.playCorrectSound();
-                        System.out.println("🔊 Playing correct sound - player found a difference!");
+                        System.out.println("🔊 Phát âm thanh đúng - người chơi tìm thấy điểm khác biệt!");
                     }
                     justClicked = false;
                 } else if (justClicked && found.size() == oldFoundCount) {
                     if (audioService != null) {
                         audioService.playWrongSound();
-                        System.out.println("🔊 Playing wrong sound - clicked but missed!");
+                        System.out.println("🔊 Phát âm thanh sai - click nhưng không trúng!");
                     }
                     justClicked = false;
                 } else if (turnChanged) {
@@ -481,7 +510,7 @@ public class GameView {
             }
             render();
         } catch (Exception e) {
-            System.err.println("Error in GameView.updateFromPayload: " + e.getMessage());
+            System.err.println("Lỗi trong GameView.updateFromPayload: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -489,12 +518,14 @@ public class GameView {
     private void updateTimerDisplay() {
         boolean isMyTurn = nextTurn.equals(myUsername);
         
+        
         timerLabel.setText(String.valueOf(remainingSeconds));
         
+        
         if (isMyTurn) {
-            turnIndicator.setText("⚡ YOUR TURN ⚡");
+            turnIndicator.setText("⚡ LƯỢT CỦA BẠN ⚡");
             turnIndicator.setStyle(
-                "-fx-font-family: 'Arial Black', sans-serif;" +
+                "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
                 "-fx-font-size: 24px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #FFFFFF;" +
@@ -504,13 +535,14 @@ public class GameView {
                 "-fx-effect: dropshadow(gaussian, rgba(10,200,185,0.9), 20, 0.8, 0, 0);"
             );
             
+            
             if (glowAnimation != null && glowAnimation.getStatus() != Animation.Status.RUNNING) {
                 glowAnimation.play();
             }
         } else {
-            turnIndicator.setText("⏳ OPPONENT'S TURN");
+            turnIndicator.setText("⏳ LƯỢT ĐỐI THỦ");
             turnIndicator.setStyle(
-                "-fx-font-family: 'Arial', sans-serif;" +
+                "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
                 "-fx-font-size: 20px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #95a5a6;" +
@@ -522,12 +554,14 @@ public class GameView {
                 "-fx-border-width: 2;"
             );
             
+            
             if (glowAnimation != null) {
                 glowAnimation.stop();
                 timerBox.setScaleX(1.0);
                 timerBox.setScaleY(1.0);
             }
         }
+        
         
         if (remainingSeconds <= 5 && isMyTurn) {
             timerBox.setStyle(
@@ -539,7 +573,7 @@ public class GameView {
                 "-fx-effect: dropshadow(gaussian, rgba(255,70,84,0.9), 25, 0.8, 0, 0);"
             );
             timerLabel.setStyle(
-                "-fx-font-family: 'Arial Black', sans-serif;" +
+                "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
                 "-fx-font-size: 32px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #FFFFFF;" +
@@ -555,7 +589,7 @@ public class GameView {
                 "-fx-effect: dropshadow(gaussian, rgba(10,200,185,0.6), 20, 0.7, 0, 0);"
             );
             timerLabel.setStyle(
-                "-fx-font-family: 'Arial Black', sans-serif;" +
+                "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
                 "-fx-font-size: 32px;" +
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #0ac8b9;" +
@@ -567,6 +601,7 @@ public class GameView {
     private void render() {
         drawBase();
         GraphicsContext g = canvas.getGraphicsContext2D();
+        
         
         for (Map<String,Object> d : found) {
             double x = ((Number)d.get("x")).doubleValue();
@@ -581,30 +616,34 @@ public class GameView {
             Color glowColor;
             
             if (finder.equals(myUsername)) {
-                circleColor = Color.web("#0ac8b9"); // Cyan for player
+                circleColor = Color.web("#0ac8b9"); 
                 glowColor = Color.web("#0ac8b9", 0.4);
             } else if (finder.equals(playerA) || finder.equals(playerB)) {
-                circleColor = Color.web("#ff4654"); // Red for opponent
+                circleColor = Color.web("#ff4654"); 
                 glowColor = Color.web("#ff4654", 0.4);
             } else {
-                circleColor = Color.web("#f39c12"); // Orange for others
+                circleColor = Color.web("#f39c12"); 
                 glowColor = Color.web("#f39c12", 0.4);
             }
+            
             
             g.setStroke(glowColor.deriveColor(0, 1, 1, 0.1));
             g.setLineWidth(20);
             g.strokeOval(boxX1 + sx - rr - 8, boxY + sy - rr - 8, rr*2 + 16, rr*2 + 16);
             g.strokeOval(boxX2 + sx - rr - 8, boxY + sy - rr - 8, rr*2 + 16, rr*2 + 16);
             
+            
             g.setStroke(glowColor.deriveColor(0, 1, 1, 0.3));
             g.setLineWidth(12);
             g.strokeOval(boxX1 + sx - rr - 4, boxY + sy - rr - 4, rr*2 + 8, rr*2 + 8);
             g.strokeOval(boxX2 + sx - rr - 4, boxY + sy - rr - 4, rr*2 + 8, rr*2 + 8);
             
+            
             g.setStroke(circleColor.deriveColor(0, 1, 1.2, 0.6));
             g.setLineWidth(7);
             g.strokeOval(boxX1 + sx - rr - 1, boxY + sy - rr - 1, rr*2 + 2, rr*2 + 2);
             g.strokeOval(boxX2 + sx - rr - 1, boxY + sy - rr - 1, rr*2 + 2, rr*2 + 2);
+            
             
             g.setStroke(circleColor);
             g.setLineWidth(4);
@@ -613,19 +652,23 @@ public class GameView {
         }
         
         
+        
         updatePlayerInfo();
     }
     
     private void updatePlayerInfo() {
+        
         if (!playerA.isEmpty()) {
-            playerANameLabel.setText(playerA.equals(myUsername) ? playerA + " (YOU)" : playerA);
+            playerANameLabel.setText(playerA.equals(myUsername) ? playerA + " (BẠN)" : playerA);
         }
         if (!playerB.isEmpty()) {
-            playerBNameLabel.setText(playerB.equals(myUsername) ? playerB + " (YOU)" : playerB);
+            playerBNameLabel.setText(playerB.equals(myUsername) ? playerB + " (BẠN)" : playerB);
         }
+        
         
         playerAScoreLabel.setText(String.valueOf(scoreA));
         playerBScoreLabel.setText(String.valueOf(scoreB));
+        
         
         if (playerA.equals(myUsername)) {
             styleActivePlayer(playerAAvatar, true);
@@ -653,29 +696,44 @@ public class GameView {
     }
 
     public void setImages(byte[] leftBytes, byte[] rightBytes, int width, int height) {
-        System.out.println("GameView.setImages called: leftBytes=" + (leftBytes != null ? leftBytes.length : "null") + ", rightBytes=" + (rightBytes != null ? rightBytes.length : "null") + ", w=" + width + ", h=" + height);
+        System.out.println("GameView.setImages được gọi: leftBytes=" + (leftBytes != null ? leftBytes.length : "null") + ", rightBytes=" + (rightBytes != null ? rightBytes.length : "null") + ", w=" + width + ", h=" + height);
         this.imgW = width > 0 ? width : this.imgW;
         this.imgH = height > 0 ? height : this.imgH;
         try {
             this.leftImg = leftBytes != null ? new Image(new ByteArrayInputStream(leftBytes)) : null;
             this.rightImg = rightBytes != null ? new Image(new ByteArrayInputStream(rightBytes)) : null;
-            System.out.println("Images created: leftImg=" + (leftImg != null) + ", rightImg=" + (rightImg != null));
-            if (leftImg != null) System.out.println("Left image size: " + leftImg.getWidth() + "x" + leftImg.getHeight());
-            if (rightImg != null) System.out.println("Right image size: " + rightImg.getWidth() + "x" + rightImg.getHeight());
+            System.out.println("Ảnh được tạo: leftImg=" + (leftImg != null) + ", rightImg=" + (rightImg != null));
+            if (leftImg != null) System.out.println("Kích thước ảnh trái: " + leftImg.getWidth() + "x" + leftImg.getHeight());
+            if (rightImg != null) System.out.println("Kích thước ảnh phải: " + rightImg.getWidth() + "x" + rightImg.getHeight());
         } catch (Exception e) {
-            System.err.println("Error creating Image from bytes: " + e.getMessage());
+            System.err.println("Lỗi tạo Image từ bytes: " + e.getMessage());
             e.printStackTrace();
         }
         render();
     }
     
     public void cleanup() {
+        
         if (countdownTimer != null) {
             countdownTimer.stop();
         }
         if (glowAnimation != null) {
             glowAnimation.stop();
         }
-        System.out.println("GameView cleanup completed");
+        
+        
+        turnIndicator.setText("YOUR TURN");
+        turnIndicator.setStyle(
+            "-fx-font-family: 'Segoe UI', 'Tahoma', sans-serif;" +
+            "-fx-font-size: 24px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-text-fill: #FFFFFF;" +
+            "-fx-padding: 8px 40px;" +
+            "-fx-background-color: linear-gradient(to right, #0ac8b9, #0077d4);" +
+            "-fx-background-radius: 25px;" +
+            "-fx-effect: dropshadow(gaussian, rgba(10,200,185,0.9), 20, 0.8, 0, 0);"
+        );
+        
+        System.out.println("GameView cleanup hoàn thành");
     }
 }

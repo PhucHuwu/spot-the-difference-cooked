@@ -64,6 +64,7 @@ public class LeaderboardController {
             entryRow.setAlignment(Pos.CENTER_LEFT);
             entryRow.setPadding(new Insets(16, 24, 16, 24));
             entryRow.setMaxWidth(1000);
+            entryRow.setMinWidth(1000);
             
             String bgGradient;
             String borderColor;
